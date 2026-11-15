@@ -1,0 +1,22 @@
+{
+  "name": "trusted-issuers-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Who trusts whom: four places a token from another issuer is trusted (PingOne token exchange, PingOne Authorize, PingOne Privilege, PingFederate ID-JAG), fourteen issuer types, and when to use each. Mock only: real RS256 checks on tokens this app mints itself. No tenant, no outbound network.",
+  "license": "MIT",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=26"
+  },
+  "scripts": {
+    "start": "npm start -w server",
+    "build": "npm run build -w web --if-present",
+    "test": "npm test -w server",
+    "doctor": "node scripts/doctor.mjs",
+    "reset": "node scripts/reset.mjs"
+  }
+}

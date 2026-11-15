@@ -1,0 +1,7 @@
+{
+  "name": "trusted-issuers-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Placeholder: the web page is built in step 2."
+}

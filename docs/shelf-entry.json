@@ -1,0 +1,15 @@
+{
+  "id": "trusted-issuers",
+  "name": "Trusted Issuers LAB",
+  "catalogId": null,
+  "kind": "Tester",
+  "description": "Who trusts whom: the four places a token from another issuer is trusted (PingOne token exchange, PingOne Authorize, Privilege Federated Identity, PingFederate ID-JAG) against 14 issuer types, with evidence tags, a when-to-use guide and break-it checks.",
+  "port": 7818,
+  "healthPath": "/api/health",
+  "composeFile": "trusted-issuers-LAB/docker-compose.yml",
+  "composeOverlays": [],
+  "tags": ["federation", "jwt", "jwks", "token-exchange", "privilege", "pingfederate", "simulated", "real"],
+  "where": "installed",
+  "repo": "https://github.com/curtismu7/trusted-issuers-LAB",
+  "pingProducts": []
+}
