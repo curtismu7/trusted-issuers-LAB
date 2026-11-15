@@ -1,0 +1,73 @@
+{
+  "cells": [
+    { "issuer": "p1-env", "surface": "p1-exchange", "status": "supported", "evidence": "docs", "source": "p1-ti-exchange", "note": "The docs name another PingOne environment as a trusted issuer. The person does not resolve to a local user: p1.userId is ignored." },
+    { "issuer": "p1-env", "surface": "p1az-oauth", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "A PingOne token is a signed JWT with iss, aud, exp and iat, and the docs say p1-prefixed claims are dropped when a token comes from outside. Not run." },
+    { "issuer": "p1-env", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer, and a PingOne token is plain OIDC. Not run." },
+    { "issuer": "p1-env", "surface": "pf-idjag", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "No source shows a PingOne environment issuing an ID-JAG. Check before relying on it." },
+
+    { "issuer": "pf", "surface": "p1-exchange", "status": "supported", "evidence": "measured", "source": "m-p1-2026-10-27", "note": "A real PingFederate token, with its JWKS URL as the key source, was accepted as the actor token. Taken during the flag period; not re-run since general availability." },
+    { "issuer": "pf", "surface": "p1az-oauth", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "Needs a JWT access token. Our default token manager issued opaque reference tokens, which Authorize cannot accept. Add a JWT token manager." },
+    { "issuer": "pf", "surface": "privilege-fi", "status": "not-proven", "evidence": "measured", "source": "m-priv-2026-10-21", "note": "The pf-test identity exists. A PingFederate token with matching claims was refused on the MCP door and the LLM route and no accepted or rejected line appeared in the gateway log. Open question for Ping." },
+    { "issuer": "pf", "surface": "pf-idjag", "status": "supported", "evidence": "measured", "source": "m-pf-interop-2026-10-19", "note": "PingFederate 13.1.3 issued ID-JAGs. Authplane, once told to trust it, redeemed one. Two other servers refused it: no kid in the header, and a signature failure." },
+
+    { "issuer": "pingam", "surface": "p1-exchange", "status": "supported", "evidence": "docs", "source": "rn-2026-11-10", "note": "The 10 Nov 2026 release note names PingAM among the trusted issuers. We have not run one." },
+    { "issuer": "pingam", "surface": "p1az-oauth", "status": "supported", "evidence": "docs", "source": "p1az-eos-add", "note": "The docs' own example is PingAM on PingOne Advanced Identity Cloud: the realm issuer URL and its jwk_uri." },
+    { "issuer": "pingam", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer. Not run." },
+    { "issuer": "pingam", "surface": "pf-idjag", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "No source shows PingAM issuing an ID-JAG." },
+
+    { "issuer": "okta", "surface": "p1-exchange", "status": "configurable", "evidence": "docs", "source": "p1-ti-exchange", "note": "Third-party issuers are allowed. Do not tick Require Not-before: an Okta token has no nbf. The claim shape was tried only with a token we signed ourselves." },
+    { "issuer": "okta", "surface": "p1az-oauth", "status": "configurable", "evidence": "docs", "source": "p1az-eos", "note": "Any server that issues signed JWT access tokens with aud, exp, iat and iss fits. Not run with Okta." },
+    { "issuer": "okta", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer. Pin the calling application with RequiredClaims on cid. Not run." },
+    { "issuer": "okta", "surface": "pf-idjag", "status": "configurable", "evidence": "lab-reading", "source": "l-id-jag-setup", "note": "Okta Cross App Access issues ID-JAGs that live 300 seconds. Our resource server trusts it. PingFederate as the redeemer of an Okta ID-JAG is not shown." },
+
+    { "issuer": "auth0", "surface": "p1-exchange", "status": "configurable", "evidence": "docs", "source": "p1-ti-exchange", "note": "Third-party issuers are allowed. The Issuer ends in a slash and an Auth0 token has no nbf. The claim shape was tried only with a token we signed ourselves." },
+    { "issuer": "auth0", "surface": "p1az-oauth", "status": "configurable", "evidence": "docs", "source": "p1az-eos", "note": "Fits if the token is a signed JWT access token. Issuers must match exactly, trailing slash included. Not run." },
+    { "issuer": "auth0", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer. Pin azp with RequiredClaims. Not run." },
+    { "issuer": "auth0", "surface": "pf-idjag", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "No source shows Auth0 issuing an ID-JAG." },
+
+    { "issuer": "entra", "surface": "p1-exchange", "status": "configurable", "evidence": "docs", "source": "p1-ti-exchange", "note": "Third-party issuers are allowed. v1.0 and v2.0 have different issuer strings, so each needs its own trusted issuer. Both carry nbf. Tried only with a token we signed ourselves." },
+    { "issuer": "entra", "surface": "p1az-oauth", "status": "configurable", "evidence": "docs", "source": "p1az-eos", "note": "One external server can list several Issuers: add the v1.0 and the v2.0 string if you accept both. Not run." },
+    { "issuer": "entra", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer, but one identity holds one Issuer, so v1.0 and v2.0 need two identities. Not run." },
+    { "issuer": "entra", "surface": "pf-idjag", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "No source shows Microsoft Entra ID issuing an ID-JAG." },
+
+    { "issuer": "rfc9068", "surface": "p1-exchange", "status": "configurable", "evidence": "docs", "source": "p1-ti-exchange", "note": "An RFC 9068 token carries every claim PingOne can require. Tried only with a token we signed ourselves." },
+    { "issuer": "rfc9068", "surface": "p1az-oauth", "status": "supported", "evidence": "docs", "source": "p1az-eos", "note": "The docs ask for a signed JWT access token that is broadly RFC 9068 compliant." },
+    { "issuer": "rfc9068", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Platform oidc takes any OIDC issuer. Not run." },
+    { "issuer": "rfc9068", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "RFC 9068 describes an access token. An ID-JAG has its own header typ, oauth-id-jag+jwt, so an access-token issuer is not enough." },
+
+    { "issuer": "k8s", "surface": "p1-exchange", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "Any signed JWT with a JWKS URL fits the form, but this surface cannot pin a subject or a claim: only the issuer and the audiences. With Audiences blank, every service account in the cluster is trusted." },
+    { "issuer": "k8s", "surface": "p1az-oauth", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "The docs describe API access tokens. Nothing says a cluster's service-account token fits. Not run." },
+    { "issuer": "k8s", "surface": "privilege-fi", "status": "configurable", "evidence": "measured", "source": "m-priv-2026-10-21", "note": "A live identity, k8s-sensor, trusts the cluster's issuer with AllowAnySubject on. The deck lists a projected token read as a deployment model. Acceptance of a token was not re-run in that note." },
+    { "issuer": "k8s", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A service-account token is not an ID-JAG: the typ must be oauth-id-jag+jwt and an IdP mints it after a token exchange." },
+
+    { "issuer": "eks", "surface": "p1-exchange", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "Same limits as Kubernetes: issuer and audiences only. The cluster id in the issuer path is part of the exact match." },
+    { "issuer": "eks", "surface": "p1az-oauth", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "Not mentioned in the docs. Not run." },
+    { "issuer": "eks", "surface": "privilege-fi", "status": "configurable", "evidence": "measured", "source": "m-priv-2026-10-21", "note": "Two live identities, eks-sensor-a and eks-sensor-b, each trust their cluster's OIDC issuer and pin the pod's service account. Acceptance of a token was not re-run in that note." },
+    { "issuer": "eks", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A service-account token is not an ID-JAG." },
+
+    { "issuer": "github-actions", "surface": "p1-exchange", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "This surface cannot pin repository, workflow or environment, so a job from any repository that can request your audience would be trusted. Prefer Federated Identity for CI." },
+    { "issuer": "github-actions", "surface": "p1az-oauth", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "Not mentioned in the docs. Not run." },
+    { "issuer": "github-actions", "surface": "privilege-fi", "status": "configurable", "evidence": "deck", "source": "d-id4ai-h2-2026", "note": "Per-job CI/CD tokens are a deployment model on slide 40. The sub is composite, so pin repository, workflow and environment with RequiredClaims. Not run on our tenant." },
+    { "issuer": "github-actions", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A job token is not an ID-JAG." },
+
+    { "issuer": "gitlab-ci", "surface": "p1-exchange", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "Issuer and audiences only: no pin on project path or ref. Prefer Federated Identity for CI." },
+    { "issuer": "gitlab-ci", "surface": "p1az-oauth", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "Not mentioned in the docs. Not run." },
+    { "issuer": "gitlab-ci", "surface": "privilege-fi", "status": "configurable", "evidence": "deck", "source": "d-id4ai-h2-2026", "note": "Per-job CI/CD tokens (slide 40). Pin project_path and ref with RequiredClaims. Not run on our tenant." },
+    { "issuer": "gitlab-ci", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A job token is not an ID-JAG." },
+
+    { "issuer": "spiffe", "surface": "p1-exchange", "status": "configurable", "evidence": "lab-reading", "source": "l-inference", "note": "A JWT-SVID is a signed JWT, but the surface cannot pin the SPIFFE ID in sub. Not run." },
+    { "issuer": "spiffe", "surface": "p1az-oauth", "status": "unknown", "evidence": "unverified", "source": "unsourced", "note": "Not mentioned in the docs. Not run." },
+    { "issuer": "spiffe", "surface": "privilege-fi", "status": "configurable", "evidence": "deck", "source": "d-id4ai-h2-2026", "note": "SPIFFE/SPIRE for mixed estates (slide 40). Our notes verify the SPIFFE to PingFederate leg; SPIFFE straight to the gateway is untested." },
+    { "issuer": "spiffe", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A JWT-SVID is not an ID-JAG." },
+
+    { "issuer": "docker-sensor", "surface": "p1-exchange", "status": "na", "evidence": "lab-reading", "source": "l-inference", "note": "The sensor's self-signed token authenticates its reports to the Privilege gateway. No PingOne exchange is involved." },
+    { "issuer": "docker-sensor", "surface": "p1az-oauth", "status": "na", "evidence": "lab-reading", "source": "l-inference", "note": "The token is for the Privilege gateway, not for an API behind Authorize." },
+    { "issuer": "docker-sensor", "surface": "privilege-fi", "status": "supported", "evidence": "measured", "source": "m-priv-2026-10-01", "note": "The sensor signs its own token and the console pins the key id: reports failed Unauthenticated when the key file was lost and recovered when the new key set was pasted in." },
+    { "issuer": "docker-sensor", "surface": "pf-idjag", "status": "na", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "A sensor token is not an ID-JAG." },
+
+    { "issuer": "private", "surface": "p1-exchange", "status": "supported", "evidence": "measured", "source": "m-p1-2026-10-27", "note": "We trusted an issuer whose key we generated ourselves, with the key set pasted in, and exchanged its token. Taken during the flag period." },
+    { "issuer": "private", "surface": "p1az-oauth", "status": "configurable", "evidence": "docs", "source": "p1az-eos-add", "note": "Works only if the key set is public HTTPS with no custom certificate, or you paste it (16 KB at most)." },
+    { "issuer": "private", "surface": "privilege-fi", "status": "configurable", "evidence": "lab-reading", "source": "s-priv-swagger", "note": "Pin the public keys with JWKS instead of JwksURI. Not run." },
+    { "issuer": "private", "surface": "pf-idjag", "status": "configurable", "evidence": "lab-reading", "source": "l-id-jag-setup", "note": "Any IdP that mints ID-JAGs can be trusted through an IdP connection with its entity id and JWKS URL." }
+  ]
+}

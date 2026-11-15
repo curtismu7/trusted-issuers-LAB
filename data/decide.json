@@ -1,0 +1,123 @@
+{
+  "start": "q-where",
+  "nodes": {
+    "q-where": {
+      "question": "Where will the other issuer's token be checked?",
+      "help": "Trust is configured where the token is checked, not where it is made. Start with the place that has to say yes.",
+      "options": [
+        { "label": "At PingOne, as the input to a token exchange", "leaf": "l-a" },
+        { "label": "At an API I protect with PingOne Authorize", "leaf": "l-b" },
+        { "label": "At the Privilege agent gateway", "next": "q-gateway-who" },
+        { "label": "At a PingFederate authorization server in another domain", "next": "q-person" },
+        { "label": "I am not sure", "next": "q-minted" }
+      ]
+    },
+    "q-gateway-who": {
+      "question": "What is calling the gateway?",
+      "help": "The gateway can trust a caller's own platform token, or it can trust the issuer that signed a token made for a person.",
+      "options": [
+        { "label": "A workload with its own platform identity: a pod, a CI job, a SPIFFE workload or a sensor", "leaf": "l-c" },
+        { "label": "An agent acting for a person, with a token from PingFederate or PingOne", "next": "q-oneoff" }
+      ]
+    },
+    "q-oneoff": {
+      "question": "Is it a one-off exchange or a standing identity?",
+      "help": "A one-off exchange trades the person's token for a new one at each call. A standing identity is registered once and keeps working until it is switched off.",
+      "options": [
+        { "label": "One-off: trade the person's token at each call", "leaf": "l-a-then-c" },
+        { "label": "Standing: the agent is registered and keeps its own identity", "leaf": "l-c" }
+      ]
+    },
+    "q-person": {
+      "question": "Is there a signed-in person whose access you are carrying across?",
+      "help": "An ID-JAG is an identity assertion about a person. With no person there is nothing for it to assert.",
+      "options": [
+        { "label": "Yes, a person signed in at one IdP and needs an app in another domain", "leaf": "l-d" },
+        { "label": "No, it is a service", "next": "q-service" }
+      ]
+    },
+    "q-service": {
+      "question": "Does the service run on a platform that mints its own tokens?",
+      "help": "Kubernetes, GitHub Actions, GitLab CI and SPIFFE all do. A service with no such token has nothing to trust.",
+      "options": [
+        { "label": "Yes", "leaf": "l-c" },
+        { "label": "No", "leaf": "l-none" }
+      ]
+    },
+    "q-minted": {
+      "question": "Who has to mint the token that the final API receives?",
+      "help": "If somebody has to mint a new token, trust sits in the product that mints it. If the token already exists, trust sits in the product that checks it.",
+      "options": [
+        { "label": "PingOne mints a new access token for my API", "leaf": "l-a" },
+        { "label": "Another authorization server already minted it and I only have to check it", "leaf": "l-b" },
+        { "label": "PingFederate mints an ID-JAG or an exchanged token", "next": "q-person" }
+      ]
+    }
+  },
+  "leaves": {
+    "l-a": {
+      "surface": "p1-exchange",
+      "reason": "PingOne is the one that checks the other issuer's token and then mints its own, so the trust belongs in PingOne's trusted issuers, assigned to the application that makes the exchange.",
+      "watchOut": [
+        "There is no subject pin and no required-claims list: it checks the issuer, the audiences and the time claims.",
+        "Worker applications cannot be assigned an issuer.",
+        "Only signed JWTs: no encrypted or opaque tokens."
+      ],
+      "alsoConsider": []
+    },
+    "l-b": {
+      "surface": "p1az-oauth",
+      "reason": "The token already exists and your API only has to be sure it is genuine, so PingOne Authorize checks it as an external OAuth server and passes the request to your policies.",
+      "watchOut": [
+        "The audience is set on the API service, not on the server.",
+        "Deploy the API service again after every change to the server.",
+        "The issuer's key set must be public HTTPS, or pasted (16 KB at most)."
+      ],
+      "alsoConsider": []
+    },
+    "l-c": {
+      "surface": "privilege-fi",
+      "reason": "The caller proves itself with a token its own platform issues, so the gateway trusts one issuer for one identity and nothing has to be stored. Switching the identity off stops it.",
+      "watchOut": [
+        "An identity with no agent key behind it authenticates nobody.",
+        "Always set Audience and pin the Subject or the claims: AllowAnySubject trusts every workload the issuer serves.",
+        "Our own test did not prove gateway acceptance on the MCP route. Ask Ping before promising it."
+      ],
+      "alsoConsider": []
+    },
+    "l-a-then-c": {
+      "surface": "p1-exchange",
+      "then": "privilege-fi",
+      "reason": "The person's token is traded where it is issued. PingOne trusts the other system through a trusted issuer and mints a token for the next hop. The gateway then only has to trust that one issuer.",
+      "watchOut": [
+        "Two trusts, two places: the issuer is trusted at PingOne, and PingOne (or PingFederate) is trusted at the gateway.",
+        "The exchange is done by PingOne or PingFederate, not by the gateway."
+      ],
+      "alsoConsider": ["pf-idjag"]
+    },
+    "l-d": {
+      "surface": "pf-idjag",
+      "reason": "One IdP vouches for the signed-in person and the other domain's server redeems that assertion, so the redeeming server needs an IdP connection for the issuer.",
+      "watchOut": [
+        "An IdP must not redeem its own ID-JAGs.",
+        "PingFederate does not refetch the issuer's keys for an ID-JAG without a kid: restart it after a key change.",
+        "PingFederate 13.1.3 puts no kid in the ID-JAG header, and some consumers refuse that."
+      ],
+      "alsoConsider": []
+    },
+    "l-none": {
+      "surface": null,
+      "reason": "None of the four fits. A service with no platform token has nothing to trust. Give it an identity (a platform that mints tokens), or fall back to a stored agent key, which is the weaker choice.",
+      "watchOut": [
+        "A stored key is a secret that can leak. Rotation means deleting and recreating the key."
+      ],
+      "alsoConsider": ["privilege-fi"]
+    }
+  },
+  "moreThanOneIssuer": [
+    { "surface": "p1-exchange", "text": "Yes. Define one trusted issuer for each and tick the ones each application may use.", "evidence": "docs", "source": "p1-ti-exchange" },
+    { "surface": "p1az-oauth", "text": "Yes. One external server can list several Issuers, and an environment can hold up to 25 servers.", "evidence": "docs", "source": "p1az-eos-add" },
+    { "surface": "privilege-fi", "text": "One Federated Identity names one Issuer, so create one identity for each issuer.", "evidence": "lab-reading", "source": "s-priv-swagger" },
+    { "surface": "pf-idjag", "text": "Yes. Add one IdP connection for each trusted issuer.", "evidence": "lab-reading", "source": "l-id-jag-setup" }
+  ]
+}

@@ -1,0 +1,548 @@
+{
+  "issuers": [
+    {
+      "id": "p1-env",
+      "name": "Another PingOne environment",
+      "group": "Ping",
+      "what": "A PingOne environment that issues access tokens. Trusting it lets one environment accept the other's tokens.",
+      "exampleIssuer": "https://auth.pingone.example/00000000-0000-0000-0000-000000000002/as",
+      "jwksUrl": "https://auth.pingone.example/00000000-0000-0000-0000-000000000002/as/jwks",
+      "pinnedOnly": false,
+      "sub": "22222222-2222-2222-2222-222222222222",
+      "typicalAud": "https://api.other-env.example",
+      "claims": {
+        "client_id": "33333333-3333-3333-3333-333333333333",
+        "acr": "Single_Factor",
+        "scope": "openid",
+        "p1.userId": "22222222-2222-2222-2222-222222222222"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "docs",
+        "source": "ping-compare-sheet"
+      },
+      "useWhen": [
+        "Two PingOne environments, such as a development one and a production one, must honour each other's tokens.",
+        "A business unit with its own environment calls an API that lives in another."
+      ],
+      "gotchas": [
+        {
+          "text": "The issuer string carries the environment id as a path segment. Two environments differ only in that id.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        },
+        {
+          "text": "PingOne ignores p1.userId on a token from a trusted issuer, so the person does not resolve to a user in the environment that accepts the token.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        }
+      ]
+    },
+    {
+      "id": "pf",
+      "name": "PingFederate",
+      "group": "Ping",
+      "what": "PingFederate as an OAuth and OIDC server. It issues ID tokens, access tokens and, since 13.1, ID-JAGs.",
+      "exampleIssuer": "https://pf.example:9031",
+      "jwksUrl": "https://pf.example:9031/pf/JWKS",
+      "pinnedOnly": false,
+      "sub": "jsmith",
+      "typicalAud": "oic_client",
+      "claims": {
+        "acr": "oidcPolicy",
+        "securityLevel": "Class 3"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "docs",
+        "source": "guide-uat-2026-10-23"
+      },
+      "useWhen": [
+        "You already run PingFederate as the authorization server and want its tokens, ID tokens or ID-JAGs trusted elsewhere.",
+        "A person signs in at PingFederate and an agent acts for them."
+      ],
+      "gotchas": [
+        {
+          "text": "A client-credentials token has exp but no iat and no nbf, so a Require Issued-at switch refuses it.",
+          "evidence": "docs",
+          "source": "guide-uat-2026-10-23"
+        },
+        {
+          "text": "Our default access token manager issued opaque reference tokens. A surface that needs a JWT needs a JWT token manager with the audience and resource URI set.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "text": "PingFederate's ID-JAG header has no kid. A consumer that looks keys up by kid refuses it.",
+          "evidence": "measured",
+          "source": "m-pf-interop-2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": "pingam",
+      "name": "PingAM",
+      "group": "Ping",
+      "what": "PingAM, including PingOne Advanced Identity Cloud. Its issuer string includes the realm path.",
+      "exampleIssuer": "https://am.example:8443/am/oauth2/realms/root/realms/alpha",
+      "jwksUrl": "https://am.example:8443/am/oauth2/realms/root/realms/alpha/connect/jwk_uri",
+      "pinnedOnly": false,
+      "sub": "user.1",
+      "typicalAud": "https://api.example/orders",
+      "claims": {
+        "azp": "agent-client",
+        "scope": "openid"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "lab-reading",
+        "source": "l-inference"
+      },
+      "useWhen": [
+        "Your workforce or customer sign-in runs on PingAM or PingOne Advanced Identity Cloud and its tokens have to reach a PingOne API.",
+        "You protect an API with PingOne Authorize and the callers' tokens come from PingAM."
+      ],
+      "gotchas": [
+        {
+          "text": "The issuer is the realm URL, found through /oauth2/realms/root/.well-known/openid-configuration. A realm in the path is part of the string you must match.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "text": "The claim set shown here is our assumption, not a sample from Ping. Copy the claims from a real token before relying on it.",
+          "evidence": "unverified",
+          "source": "unsourced"
+        }
+      ]
+    },
+    {
+      "id": "okta",
+      "name": "Okta",
+      "group": "SaaS identity provider",
+      "what": "An Okta custom authorization server. The application id is cid and the scopes are scp.",
+      "exampleIssuer": "https://okta.example/oauth2/aus1example",
+      "jwksUrl": "https://okta.example/oauth2/aus1example/v1/keys",
+      "pinnedOnly": false,
+      "sub": "00uexampleuser",
+      "typicalAud": "https://api.okta-sample.example",
+      "claims": {
+        "cid": "0oaexampleapp",
+        "uid": "00uexampleuser",
+        "scp": [
+          "openid",
+          "email"
+        ]
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "docs",
+        "source": "ping-compare-sheet"
+      },
+      "useWhen": [
+        "Your agents or apps sign in through Okta and the token has to be trusted by a Ping product.",
+        "You use Okta Cross App Access and need a Ping resource server to redeem its ID-JAG."
+      ],
+      "gotchas": [
+        {
+          "text": "An Okta token has no nbf, so a Require Not-before switch refuses it.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        },
+        {
+          "text": "The calling application is cid, not client_id or azp. Map the right claim into act.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        }
+      ]
+    },
+    {
+      "id": "auth0",
+      "name": "Auth0",
+      "group": "SaaS identity provider",
+      "what": "An Auth0 tenant with its default access token profile.",
+      "exampleIssuer": "https://my-domain.auth0.example/",
+      "jwksUrl": "https://my-domain.auth0.example/.well-known/jwks.json",
+      "pinnedOnly": false,
+      "sub": "auth0|123456",
+      "typicalAud": "https://health-api.example/",
+      "claims": {
+        "azp": "my_client_id",
+        "scope": "openid profile read:patients"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "docs",
+        "source": "ping-compare-sheet"
+      },
+      "useWhen": [
+        "A customer-facing app signs in through Auth0 and calls an API that a Ping product guards."
+      ],
+      "gotchas": [
+        {
+          "text": "The issuer ends in a slash. Leave it off and the exact match fails.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        },
+        {
+          "text": "aud is an array, and the token has no nbf and no jti.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        }
+      ]
+    },
+    {
+      "id": "entra",
+      "name": "Microsoft Entra ID (v1.0 and v2.0)",
+      "group": "SaaS identity provider",
+      "what": "Microsoft Entra ID. The two token versions have different issuer strings and different claims.",
+      "exampleIssuer": "https://login.microsoftonline.example/aaaaaaaa-0000-0000-0000-000000000001/v2.0",
+      "alternateIssuers": [
+        "https://sts.windows.example/aaaaaaaa-0000-0000-0000-000000000001/"
+      ],
+      "jwksUrl": "https://login.microsoftonline.example/aaaaaaaa-0000-0000-0000-000000000001/discovery/v2.0/keys",
+      "pinnedOnly": false,
+      "sub": "mock-subject-entra",
+      "typicalAud": "api://app.example",
+      "claims": {
+        "azp": "dddddddd-0000-0000-0000-000000000005",
+        "oid": "eeeeeeee-0000-0000-0000-000000000006",
+        "scp": "access_as_user"
+      },
+      "hasIat": true,
+      "hasNbf": true,
+      "shape": {
+        "evidence": "docs",
+        "source": "ping-compare-sheet"
+      },
+      "useWhen": [
+        "Your workforce signs in through Microsoft Entra ID and the token has to be trusted by a Ping product.",
+        "Both token versions are in use, so you need to trust both issuer strings."
+      ],
+      "gotchas": [
+        {
+          "text": "v1.0 ends in a slash and v2.0 ends in /v2.0. A surface that takes several Issuers needs both if you accept both.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        },
+        {
+          "text": "The calling application is appid in v1.0 and azp in v2.0.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        }
+      ]
+    },
+    {
+      "id": "rfc9068",
+      "name": "A generic RFC 9068 authorization server",
+      "group": "Standard",
+      "what": "Any authorization server that issues the standard JWT access token profile (RFC 9068).",
+      "exampleIssuer": "https://authorization-server.example/",
+      "jwksUrl": "https://authorization-server.example/jwks",
+      "pinnedOnly": false,
+      "sub": "5ba552d67",
+      "typicalAud": "https://rs.example/",
+      "claims": {
+        "client_id": "s6BhdRkqt3",
+        "jti": "mock-jti-rfc9068",
+        "scope": "openid profile"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "docs",
+        "source": "ping-compare-sheet"
+      },
+      "useWhen": [
+        "The other authorization server is not one we can name, but it issues standard JWT access tokens.",
+        "You want to check a product against the standard before testing it with a vendor."
+      ],
+      "gotchas": [
+        {
+          "text": "RFC 9068 requires iss, exp, aud, sub, client_id, iat and jti. It does not require nbf.",
+          "evidence": "docs",
+          "source": "ping-compare-sheet"
+        },
+        {
+          "text": "The access token header typ is at+jwt, which a surface that expects another typ would notice.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "k8s",
+      "name": "Kubernetes API server",
+      "group": "Workload platform",
+      "what": "A cluster's service-account issuer. A pod's projected token is its credential.",
+      "exampleIssuer": "https://kubernetes.default.svc.cluster.example",
+      "jwksUrl": "https://kubernetes.default.svc.cluster.example/openid/v1/jwks",
+      "pinnedOnly": false,
+      "sub": "system:serviceaccount:agents:orders-agent",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "kubernetes.io": {
+          "namespace": "agents",
+          "serviceaccount": {
+            "name": "orders-agent"
+          }
+        }
+      },
+      "hasIat": true,
+      "hasNbf": true,
+      "shape": {
+        "evidence": "measured",
+        "source": "m-priv-2026-10-21"
+      },
+      "useWhen": [
+        "An agent runs in a cluster and its projected service-account token should be its credential, with no stored secret.",
+        "A cluster-resident sensor reports to the Privilege gateway."
+      ],
+      "gotchas": [
+        {
+          "text": "The sub is system:serviceaccount:<namespace>:<name>. A live identity of ours had AllowAnySubject on: any pod in the cluster could present a token.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "text": "The audience on a projected token is chosen by whoever mounts it: bind the audience, never leave it to the default.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "eks",
+      "name": "AWS EKS OIDC",
+      "group": "Workload platform",
+      "what": "The OIDC issuer of an EKS cluster. The issuer URL ends in a cluster id.",
+      "exampleIssuer": "https://oidc.eks.region-1.example/id/EXAMPLE0CLUSTER0ID",
+      "jwksUrl": "https://oidc.eks.region-1.example/id/EXAMPLE0CLUSTER0ID/keys",
+      "pinnedOnly": false,
+      "sub": "system:serviceaccount:agents:orders-agent",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "kubernetes.io": {
+          "namespace": "agents",
+          "serviceaccount": {
+            "name": "orders-agent"
+          }
+        }
+      },
+      "hasIat": true,
+      "hasNbf": true,
+      "shape": {
+        "evidence": "measured",
+        "source": "m-priv-2026-10-21"
+      },
+      "useWhen": [
+        "The agent runs on EKS and the cluster's OIDC issuer is already set up for pod identity.",
+        "Two clusters must be trusted separately: each has its own issuer."
+      ],
+      "gotchas": [
+        {
+          "text": "Each cluster has its own issuer string: a token from cluster A must not satisfy an identity for cluster B. Our live identities pin the pod's service account.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "text": "The cluster id in the path is part of the exact match.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "github-actions",
+      "name": "GitHub Actions",
+      "group": "Workload platform",
+      "what": "The OIDC issuer for CI jobs. Each job can request a short-lived token.",
+      "exampleIssuer": "https://token.actions.example",
+      "jwksUrl": "https://token.actions.example/.well-known/jwks",
+      "pinnedOnly": false,
+      "sub": "repo:example-org/orders-agent:ref:refs/heads/main",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "repository": "example-org/orders-agent",
+        "repository_owner": "example-org",
+        "workflow": "release",
+        "ref": "refs/heads/main",
+        "actor": "example-user",
+        "environment": "production"
+      },
+      "hasIat": true,
+      "hasNbf": true,
+      "shape": {
+        "evidence": "lab-reading",
+        "source": "l-federated-identity"
+      },
+      "useWhen": [
+        "A CI job has to call a gateway or a token endpoint with no stored secret, only the job's own token.",
+        "You want a release job trusted and a fork's pull request not trusted."
+      ],
+      "gotchas": [
+        {
+          "text": "The sub is composite (repository and ref). A surface that cannot pin claims cannot tell a release branch from a fork pull request: use RequiredClaims on repository, workflow, ref and environment.",
+          "evidence": "lab-reading",
+          "source": "l-federated-identity"
+        },
+        {
+          "text": "The real issuer string is on the vendor's documentation. The host shown here is a stand-in on .example.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "gitlab-ci",
+      "name": "GitLab CI",
+      "group": "Workload platform",
+      "what": "The OIDC issuer for GitLab CI jobs.",
+      "exampleIssuer": "https://gitlab.example",
+      "jwksUrl": "https://gitlab.example/oauth/discovery/keys",
+      "pinnedOnly": false,
+      "sub": "project_path:example-group/orders-agent:ref_type:branch:ref:main",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "project_path": "example-group/orders-agent",
+        "namespace_path": "example-group",
+        "ref": "main",
+        "ref_type": "branch",
+        "pipeline_source": "push"
+      },
+      "hasIat": true,
+      "hasNbf": true,
+      "shape": {
+        "evidence": "lab-reading",
+        "source": "l-federated-identity"
+      },
+      "useWhen": [
+        "A GitLab pipeline has to call a gateway with no stored secret.",
+        "You want only one project and one branch trusted."
+      ],
+      "gotchas": [
+        {
+          "text": "The sub is composite (project path, ref type, ref). Pin project_path and ref with RequiredClaims where the surface allows it.",
+          "evidence": "lab-reading",
+          "source": "l-federated-identity"
+        },
+        {
+          "text": "A self-hosted GitLab has its own issuer string. Use that host, not a shared one.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "spiffe",
+      "name": "SPIFFE / SPIRE",
+      "group": "Workload platform",
+      "what": "A SPIRE server that issues JWT-SVIDs. The subject is the workload's SPIFFE ID.",
+      "exampleIssuer": "https://spire.example",
+      "jwksUrl": "https://spire.example/keys",
+      "pinnedOnly": false,
+      "sub": "spiffe://trust.example/ns/agents/sa/orders-agent",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "workload": "orders-agent"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "lab-reading",
+        "source": "l-federated-identity"
+      },
+      "useWhen": [
+        "The estate mixes platforms and SPIFFE/SPIRE already gives every workload one identity.",
+        "You want the subject to be a SPIFFE ID, not a platform-specific name."
+      ],
+      "gotchas": [
+        {
+          "text": "The SPIFFE JWT-SVID rules require sub, aud and exp only. A surface that requires iat can refuse a token that has none.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        },
+        {
+          "text": "The sub is a SPIFFE ID (spiffe://trust.example/path), not a URL you would put in an Issuer field.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        }
+      ]
+    },
+    {
+      "id": "docker-sensor",
+      "name": "Privilege Docker sensor (self-signed)",
+      "group": "Self-signed",
+      "what": "A shadow-AI sensor in Docker that signs its own token. The console pins the key's id, so the key file is the identity.",
+      "exampleIssuer": "https://sensor.privilege.example/nodesensor",
+      "jwksUrl": null,
+      "pinnedOnly": true,
+      "sub": "nodesensor:host-1:8123",
+      "typicalAud": "priv-nhi-EXAMPLE",
+      "claims": {
+        "workload": "orders-agent"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "measured",
+        "source": "m-priv-2026-10-21"
+      },
+      "useWhen": [
+        "A shadow-AI sensor runs in Docker and has to report to the Privilege gateway without a shared secret."
+      ],
+      "gotchas": [
+        {
+          "text": "Lose the key file and reports fail with Unauthenticated, because the console still pins the old key id. Paste the new key set; issuer, subject and audience do not change.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-01"
+        },
+        {
+          "text": "The audience is generated by the console (priv-nhi-<random>). Copy the one it issues.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        }
+      ]
+    },
+    {
+      "id": "private",
+      "name": "Your own signer (private issuer)",
+      "group": "Self-signed",
+      "what": "An issuer you run whose keys are not reachable from the product, so its public keys are pinned instead of fetched.",
+      "exampleIssuer": "https://signer.example",
+      "jwksUrl": null,
+      "pinnedOnly": true,
+      "sub": "agent:orders-agent",
+      "typicalAud": "https://gateway.example/orders",
+      "claims": {
+        "workload": "orders-agent"
+      },
+      "hasIat": true,
+      "hasNbf": false,
+      "shape": {
+        "evidence": "measured",
+        "source": "m-p1-2026-10-27"
+      },
+      "useWhen": [
+        "The issuer is yours and its keys cannot be fetched by the product, so you pin them.",
+        "You are testing a trust setting and want a token you control."
+      ],
+      "gotchas": [
+        {
+          "text": "With pinned keys, a rotation is a manual change in every product that trusts you. Plan the order: publish the new key first, then switch signing.",
+          "evidence": "lab-reading",
+          "source": "l-inference"
+        },
+        {
+          "text": "PingOne token exchange accepted a token from an issuer whose key we generated ourselves and pasted in as JWKS.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "labs": [
+    {
+      "id": "p1-third-party-exchange",
+      "name": "P1 Third-Party Exchange",
+      "route": "/p1-third-party-exchange/",
+      "catalogId": "D98",
+      "tier": "Demo"
+    },
+    {
+      "id": "meridian-a2a-hop",
+      "name": "Meridian Pay A2A hop lab",
+      "route": "/meridian-a2a-hop/",
+      "catalogId": "D110",
+      "tier": "Demo"
+    },
+    {
+      "id": "pf-privilege-obo-lab",
+      "name": "PF to Privilege OBO Lab",
+      "route": "/pf-privilege-obo-lab/",
+      "catalogId": "D130",
+      "tier": "Demo"
+    },
+    {
+      "id": "id-jag-standalone",
+      "name": "ID-JAG Standalone LAB",
+      "route": "/id-jag-kit/",
+      "catalogId": "C1",
+      "tier": "Demo"
+    },
+    {
+      "id": "idjag-runner",
+      "name": "ID-JAG Runner",
+      "route": "/idjag-runner/",
+      "catalogId": null,
+      "tier": "Tester"
+    },
+    {
+      "id": "workload-identity-lab",
+      "name": "Workload Identity Lab",
+      "route": "/workload-identity/",
+      "catalogId": "D133",
+      "tier": "Tester"
+    },
+    {
+      "id": "federated-identity-lab",
+      "name": "Federated Identity LAB",
+      "route": "/federated-identity-lab/",
+      "catalogId": "D107",
+      "tier": "Demo"
+    },
+    {
+      "id": "privilege-map",
+      "name": "Privilege Map LAB",
+      "route": "/privilege-map/",
+      "catalogId": null,
+      "tier": "Demo"
+    },
+    {
+      "id": "gateway-claims-lab",
+      "name": "Gateway Claims Lab",
+      "route": "/gateway-claims/",
+      "catalogId": "D99",
+      "tier": "Demo"
+    },
+    {
+      "id": "agentcore-pingone-demo-lab",
+      "name": "AgentCore PingOne LAB",
+      "route": "/agentcore-pingone/",
+      "catalogId": "D114",
+      "tier": "Demo"
+    },
+    {
+      "id": "agent-mcp-door-demo",
+      "name": "Agent Meets the MCP Door LAB",
+      "route": "/agent-mcp-door-demo/",
+      "catalogId": null,
+      "tier": "Demo"
+    },
+    {
+      "id": "p1az-inspector",
+      "name": "P1AZ Inspector LAB",
+      "route": "/p1az-inspector/",
+      "catalogId": "B2",
+      "tier": "Tester"
+    },
+    {
+      "id": "mock-authorize",
+      "name": "Mock Authorize LAB",
+      "route": "/mock-authorize/",
+      "catalogId": "G4",
+      "tier": "Tester"
+    },
+    {
+      "id": "token-workbench",
+      "name": "Token Workbench",
+      "route": "/token-workbench/",
+      "catalogId": "C2",
+      "tier": "Demo"
+    }
+  ],
+  "seenIn": [
+    {
+      "lab": "p1-third-party-exchange",
+      "surfaces": [
+        "p1-exchange"
+      ],
+      "issuers": [
+        "pf",
+        "p1-env",
+        "okta",
+        "auth0",
+        "rfc9068",
+        "entra"
+      ],
+      "role": "Walks the whole PingOne setup: define a trusted issuer, assign it to an application, map claims on the resource, send the exchange. Seven issuer token shapes, with PingOne's measured refusal texts.",
+      "checkedIn": [
+        "p1-third-party-exchange-LAB/server/src/exchangeData.js",
+        "p1-third-party-exchange-LAB/server/src/exchange.js"
+      ],
+      "checkedAtCommit": "2bcc181"
+    },
+    {
+      "lab": "meridian-a2a-hop",
+      "surfaces": [
+        "p1-exchange",
+        "privilege-fi"
+      ],
+      "issuers": [
+        "private"
+      ],
+      "role": "An external platform's agent arrives with a JWT that did not come from our issuer. Trust was set up once at the authorization server (issuer string and JWKS), PingOne exchanges the token, and the Privilege doors then check required claims. A stub signer stands in for the platform.",
+      "checkedIn": [
+        "meridian-a2a-hop-LAB/server/src/flow/steps.js",
+        "meridian-a2a-hop-LAB/customer.config.example.json",
+        "meridian-a2a-hop-LAB/CLAUDE.md"
+      ],
+      "checkedAtCommit": "c498052"
+    },
+    {
+      "lab": "pf-privilege-obo-lab",
+      "surfaces": [
+        "privilege-fi"
+      ],
+      "issuers": [
+        "pf"
+      ],
+      "role": "The gateway's check on a PingFederate token against a Federated Identity: signature through the PingFederate JWKS, exact issuer, exact audience, required claims (act.sub and client_id) and a maximum lifetime.",
+      "checkedIn": [
+        "pf-privilege-obo-LAB/server/src/scenarios.js",
+        "pf-privilege-obo-LAB/README.md"
+      ],
+      "checkedAtCommit": "0d7787a"
+    },
+    {
+      "lab": "id-jag-standalone",
+      "surfaces": [
+        "pf-idjag"
+      ],
+      "issuers": [
+        "pf",
+        "okta"
+      ],
+      "role": "Trusted IdPs: an admin approves each issuer (entity id and JWKS URL) before our resource server, or PingFederate as the redeemer, will redeem its ID-JAGs. The guides cover PingFederate as the redeemer and Okta Cross App Access.",
+      "checkedIn": [
+        "id-jag-standalone-LAB/docs/setup-guides.md",
+        "id-jag-standalone-LAB/docs/resource-as.md"
+      ],
+      "checkedAtCommit": "27fcd01"
+    },
+    {
+      "lab": "idjag-runner",
+      "surfaces": [
+        "pf-idjag"
+      ],
+      "issuers": [
+        "pf"
+      ],
+      "role": "Runs the PingFederate ID-JAG demo against a real PingFederate: it reads the IdP connection that holds the issuer trust and shows the issuer's public JWKS.",
+      "checkedIn": [
+        "idjag-runner-LAB/README.md",
+        "idjag-runner-LAB/web/public/PingFederate-IDJAG-Demo.postman_collection.json"
+      ],
+      "checkedAtCommit": "153a93d"
+    },
+    {
+      "lab": "workload-identity-lab",
+      "surfaces": [
+        "privilege-fi"
+      ],
+      "issuers": [
+        "pf",
+        "private"
+      ],
+      "role": "An agent authenticates to the gateway with a JWT from its own identity platform, holding no gateway secret. The gateway checks signature, issuer, audience, required claims and lifetime. Mock uses its own signer; Real (owner-run) uses PingFederate.",
+      "checkedIn": [
+        "workload-identity-LAB/server/src/mockGateway.js",
+        "workload-identity-LAB/README.md"
+      ],
+      "checkedAtCommit": "8be633f"
+    },
+    {
+      "lab": "federated-identity-lab",
+      "surfaces": [
+        "privilege-fi"
+      ],
+      "issuers": [
+        "k8s",
+        "github-actions",
+        "gitlab-ci",
+        "spiffe",
+        "private"
+      ],
+      "role": "Five mock issuers and seeded Federated Identities: exact issuer, subject and audience binding, a lifetime cap, pinned claims, key refresh, and lookalike strings that differ by one character.",
+      "checkedIn": [
+        "federated-identity-LAB/server/src/catalog.js",
+        "federated-identity-LAB/server/src/engine.js"
+      ],
+      "checkedAtCommit": "c415689"
+    },
+    {
+      "lab": "privilege-map",
+      "surfaces": [
+        "privilege-fi"
+      ],
+      "issuers": [],
+      "role": "Draws the Federated Identity model: what an agent access key is made of and the checks the gateway runs on every call, including the identity that supplies federation so no static secret is kept.",
+      "checkedIn": [
+        "privilege-map-LAB/README.md",
+        "privilege-map-LAB/diagrams/nhi-entity.json"
+      ],
+      "checkedAtCommit": "baf2a0c"
+    }
+  ],
+  "candidates": [
+    {
+      "lab": "gateway-claims-lab",
+      "why": "Its on-behalf-of story refuses a caller token from an issuer other than the configured one (untrusted_issuer). The lab tags that as its own reading, and the on-behalf-of setting is a Ping release claim (deck slide 48). It is not one of the four surfaces here, so it is not counted.",
+      "checkedIn": [
+        "gateway-claims-LAB/server/src/oboData.js"
+      ]
+    },
+    {
+      "lab": "agentcore-pingone-demo-lab",
+      "why": "It carries the same on-behalf-of story and the same untrusted_issuer scenario. Same reason as gateway-claims-lab.",
+      "checkedIn": [
+        "agentcore-pingone-demo-LAB/server/src/oboData.js"
+      ]
+    },
+    {
+      "lab": "agent-mcp-door-demo",
+      "why": "It shows a per-call token exchange, but a search of its server code, docs and diagrams found no trusted-issuer, JWKS or issuer-match statement.",
+      "checkedIn": [
+        "agent-mcp-door-demo-LAB/README.md"
+      ]
+    },
+    {
+      "lab": "p1az-inspector",
+      "why": "It sends decisions to PingOne Authorize. A search found no external OAuth server or issuer trust configuration.",
+      "checkedIn": [
+        "p1az-inspector-LAB/README.md"
+      ]
+    },
+    {
+      "lab": "mock-authorize",
+      "why": "A stand-in for PingOne Authorize decisions. A search found no external OAuth server or issuer trust configuration.",
+      "checkedIn": [
+        "mock-authorize-LAB/README.md"
+      ]
+    },
+    {
+      "lab": "token-workbench",
+      "why": "It checks a signature against an issuer's JWKS and whether iss matches, but it does not model any product's trusted-issuer setting.",
+      "checkedIn": [
+        "token-workbench-LAB/README.md"
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "gap-b-no-lab",
+      "surface": "p1az-oauth",
+      "lab": "p1az-inspector",
+      "text": "No lab configures a PingOne Authorize external OAuth server. p1az-inspector and mock-authorize are the natural homes: show the Issuers, JWKS and API-service Audience setup, and the four documented 401 causes (issuer, audience, expiry, signature)."
+    },
+    {
+      "id": "gap-door-exchange",
+      "surface": "p1-exchange",
+      "lab": "agent-mcp-door-demo",
+      "text": "Its per-call token exchange is where a trusted issuer would be configured, and the lab does not show that step."
+    },
+    {
+      "id": "gap-token-workbench",
+      "surface": null,
+      "lab": "token-workbench",
+      "text": "A \"who would trust this iss\" panel that reads this atlas's matrix would turn a decoded token into a trust answer."
+    },
+    {
+      "id": "gap-pf-redeems-okta",
+      "surface": "pf-idjag",
+      "lab": "id-jag-standalone",
+      "text": "Only PingFederate issuers have been run against PingFederate. Nothing shows PingFederate redeeming an Okta ID-JAG."
+    },
+    {
+      "id": "gap-priv-acceptance",
+      "surface": "privilege-fi",
+      "lab": "workload-identity-lab",
+      "text": "Gateway acceptance of a PingFederate workload token on the MCP route is unproven on our tenant. workload-identity-lab Real mode is the owner-run way to settle it."
+    },
+    {
+      "id": "gap-p1-remeasure",
+      "surface": "p1-exchange",
+      "lab": "p1-third-party-exchange",
+      "text": "The PingOne measurements date from 2026-10-27, before general availability. The refusal texts, clock skew and maximum future validity need one re-run."
+    },
+    {
+      "id": "gap-fifth-surface",
+      "surface": null,
+      "lab": "gateway-claims-lab",
+      "text": "The gateway's on-behalf-of exchange has its own inbound-issuer trust (a Ping release claim, deck slide 48). It may be a fifth surface for this atlas once it is measured."
+    },
+    {
+      "id": "gap-unshown-issuers",
+      "surface": null,
+      "lab": "federated-identity-lab",
+      "text": "No lab of ours shows pingam, eks, docker-sensor as an issuer. This atlas is the only place they appear."
+    }
+  ]
+}

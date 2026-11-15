@@ -1,0 +1,36 @@
+{
+  "sources": [
+    { "id": "p1-ti-add", "kind": "docs", "title": "PingOne: Adding a trusted issuer", "where": "https://docs.pingidentity.com/pingone/integrations/p1_adding_trusted_issuers.html", "revdate": "2026-11-10" },
+    { "id": "p1-ti-manage", "kind": "docs", "title": "PingOne: Managing trusted issuers", "where": "https://docs.pingidentity.com/pingone/integrations/p1_managing_trusted_issuers.html", "revdate": "2026-11-10" },
+    { "id": "p1-ti-exchange", "kind": "docs", "title": "PingOne: OAuth 2.0 token exchange with third-party trusted issuers", "where": "https://docs.pingidentity.com/pingone/use_cases/p1_oauth_2_token_exchange_third_party_trusted_issuers.html", "revdate": "2026-11-10" },
+    { "id": "rn-2026-11-10", "kind": "docs", "title": "Ping release note, 10 Nov 2026: third-party trusted issuers in token exchange, generally available", "where": "quoted in our handoff note HANDOFF-p1-third-party-exchange-ga-2026-11-10.md (the note itself is not linked here)", "revdate": "2026-11-10" },
+    { "id": "guide-uat-2026-10-23", "kind": "docs", "title": "Ping UAT guide, Token Exchange to support third-party signed JWTs as subject and actor tokens (23 Oct 2026, for Ping staff and selected customers)", "where": "as captured in p1-third-party-exchange-LAB, server/src/exchangeData.js", "revdate": "2026-10-23" },
+    { "id": "ping-compare-sheet", "kind": "docs", "title": "Ping comparison sheets: token claims from Auth0, Okta, Microsoft, RFC 9068 and PingOne (vendor sample tokens)", "where": "as captured in p1-third-party-exchange-LAB, server/src/exchangeData.js", "revdate": "2026-10" },
+    { "id": "p1az-eos", "kind": "docs", "title": "PingOne Authorize: External OAuth servers (overview and token validation)", "where": "https://docs.pingidentity.com/pingone/authorization_using_pingone_authorize/p1_az_external_oauth_servers.html", "revdate": "2025-09-05" },
+    { "id": "p1az-eos-add", "kind": "docs", "title": "PingOne Authorize: Adding an external OAuth server", "where": "https://docs.pingidentity.com/pingone/authorization_using_pingone_authorize/p1_az_adding_external_oauth_servers.html", "revdate": "2026-10-02" },
+    { "id": "p1az-eos-trouble", "kind": "docs", "title": "PingOne Authorize: Troubleshooting external token sources", "where": "https://docs.pingidentity.com/pingone/authorization_using_pingone_authorize/p1az_aam_troubleshooting_external_token_sources.html", "revdate": "2026-07-20" },
+
+    { "id": "m-p1-2026-10-27", "kind": "measured", "title": "Our live PingOne measurements, 2026-10-27, taken while the feature was behind a flag. Not re-run since general availability.", "where": "HANDOFF-p1-third-party-exchange-ga-2026-11-10.md; messages copied in p1-third-party-exchange-LAB, server/src/exchange.js", "date": "2026-10-27" },
+    { "id": "m-priv-2026-10-21", "kind": "measured", "title": "Our read of live Privilege Federated Identity objects and our failed gateway token tests, 2026-10-21", "where": "privilege-nhi-setup skill notes, sections on workload identity and wiring an agent NHI", "date": "2026-10-21" },
+    { "id": "m-priv-2026-10-01", "kind": "measured", "title": "Our Docker sensor crash-loop note (OrbStack), 2026-10-01", "where": "privilege-nhi-setup skill notes, section on sensor identity in Docker", "date": "2026-10-01" },
+    { "id": "m-pf-interop-2026-10-19", "kind": "measured", "title": "Our PingFederate 13.1.3 ID-JAG interoperability run, 2026-10-19", "where": "id-jag-standalone-LAB, docs/interop-lab.md", "date": "2026-10-19" },
+
+    { "id": "d-id4ai-h2-2026", "kind": "deck", "title": "Ping deck ID4AI Workforce, H2 2026 (slides 35, 40 and 41, release dated 2026-11-02)", "where": "as read into federated-identity-LAB, server/src/catalog.js", "date": "2026-11-02" },
+
+    { "id": "s-priv-swagger", "kind": "lab", "title": "Privilege console swagger, 2026-10-31 (schema only: nothing was exercised)", "where": "privilege-swagger-baselines, DIFF-2026-10-26-to-2026-10-31.md", "date": "2026-10-31" },
+    { "id": "l-federated-identity", "kind": "lab", "title": "federated-identity-LAB: the check chain its engine models (our reading)", "where": "federated-identity-LAB, server/src/engine.js", "date": "2026-11-14" },
+    { "id": "l-id-jag-setup", "kind": "lab", "title": "id-jag-standalone-LAB: PingFederate as the ID-JAG redeemer (our setup guide)", "where": "id-jag-standalone-LAB, docs/setup-guides.md", "date": "2026-11-10" },
+    { "id": "l-id-jag-resource-as", "kind": "lab", "title": "id-jag-standalone-LAB: the checks our resource authorization server runs on an ID-JAG", "where": "id-jag-standalone-LAB, docs/resource-as.md", "date": "2026-11-10" },
+    { "id": "l-inference", "kind": "lab", "title": "Our inference from a vendor's documented fields. Nothing was run.", "where": "this lab", "date": "2026-11-15" },
+    { "id": "l-engine", "kind": "lab", "title": "This lab's mock engine: real RS256 verification with rules transcribed from the sources named on each surface", "where": "this lab, server/src/verify.js", "date": "2026-11-15" },
+
+    { "id": "unsourced", "kind": "none", "title": "No source found", "where": "", "date": "2026-11-15" }
+  ],
+  "kindsByTag": {
+    "docs": ["docs"],
+    "measured": ["measured"],
+    "deck": ["deck"],
+    "lab-reading": ["lab"],
+    "unverified": ["none"]
+  }
+}

@@ -1,0 +1,1070 @@
+{
+  "surfaces": [
+    {
+      "id": "p1-exchange",
+      "letter": "A",
+      "name": "PingOne token exchange: trusted issuers",
+      "product": "PingOne",
+      "oneLine": "PingOne accepts a signed JWT from another issuer as the subject or actor token of an RFC 8693 token exchange, then mints its own access token.",
+      "whatTrustIsFor": "Trading a token from another system for a PingOne access token for one of your APIs.",
+      "whereConfigured": [
+        {
+          "step": "Add the issuer: Integrations > Trusted Issuers, then the plus icon. Environment Admin, or a custom role with trustedIssuers:create:trustedIssuer.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "step": "Assign it: Applications > Applications > your OIDC application > Trusted Issuers tab > pencil > tick the issuers > Save. The application must be OIDC-based with the token exchange grant. Worker applications are not supported.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        },
+        {
+          "step": "Map claims: Applications > Resources > the custom resource that is the audience of the new token > Attributes > Add. For act, name the attribute act and use the expression {\"sub\": #root.context.requestData.actorToken.sub}.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        },
+        {
+          "step": "Send the exchange with subject_token_type or actor_token_type set to urn:ietf:params:oauth:token-type:jwt for the third-party token.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        }
+      ],
+      "fields": [
+        {
+          "name": "Name",
+          "api": "name",
+          "meaning": "A unique name for the issuer.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Issuer",
+          "api": "issuer",
+          "meaning": "The URL that identifies the external issuer. It is compared with the token's iss.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "JSON Web Key Set Method",
+          "api": "jwksUrl or jwks",
+          "meaning": "Either the URL where PingOne fetches the key set, or the key set pasted in (the jwks field is a JSON string).",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Audiences",
+          "api": "audiences",
+          "meaning": "Accepted aud values. If set, at least one value in the token's aud must match. Blank accepts any aud.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Require Expiration Claim",
+          "api": "expRequired",
+          "meaning": "Reject a token that has no exp.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Require Issued-at Claim",
+          "api": "iatRequired",
+          "meaning": "Reject a token that has no iat.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Require Not-before Claim",
+          "api": "nbfRequired",
+          "meaning": "Reject a token that has no nbf.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Clock Skew Tolerance",
+          "api": "clockSkew",
+          "meaning": "Allowed clock difference in seconds, 0 to 60, applied when checking exp and nbf.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Max Future Validity",
+          "api": "maxFutureValidity",
+          "meaning": "The furthest ahead an exp may be, up to 30 days. 0 means any future date is valid.",
+          "evidence": "docs",
+          "source": "p1-ti-add"
+        },
+        {
+          "name": "Assignment",
+          "api": "trustedIssuerAssignments",
+          "meaning": "Which applications may present tokens from this issuer. An issuer does nothing until it is assigned.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        }
+      ],
+      "checks": {
+        "orderEvidence": "unverified",
+        "orderNote": "The docs do not state the order. Our measurements tested one fault at a time, so when two things are wrong PingOne may name a different one first. This lab runs them in the order below and says so.",
+        "errorEnvelope": {
+          "http": 400,
+          "error": "invalid_request",
+          "prefix": "The request could not be completed. The request was malformed or invalid.: ",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        "items": [
+          {
+            "id": "type",
+            "label": "The token type is urn:ietf:params:oauth:token-type:jwt",
+            "message": "Provided token type must be urn:ietf:params:oauth:token-type:jwt",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "form",
+            "label": "The token is a signed JWT, not an encrypted (nested) one",
+            "message": "Only a signed JWT is accepted as a third-party token",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1-ti-exchange"
+          },
+          {
+            "id": "assigned",
+            "label": "The calling application is allowed to use a trusted issuer",
+            "message": "The token issuer does not match any Trusted Issuer for the requesting application",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "issuer",
+            "label": "iss equals the Issuer of a trusted issuer assigned to the application",
+            "message": "The token issuer does not match any Trusted Issuer assigned to the application",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "signature",
+            "label": "The signature verifies against the issuer's key set",
+            "message": "JWT signature verification failed",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "exp",
+            "label": "exp is present when required and has not passed (within the clock skew)",
+            "message": "The provided JWT has expired",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27",
+            "alt": {
+              "missing": {
+                "message": "Missing exp claim; the Trusted Issuer requires an expiration time",
+                "messageSource": "measured"
+              }
+            }
+          },
+          {
+            "id": "maxfuture",
+            "label": "exp is no further ahead than Max Future Validity",
+            "message": "The exp claim exceeds the maximum allowed future validity",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "iat",
+            "label": "iat is present when required",
+            "message": "Missing iat claim; the Trusted Issuer requires an issued-at time",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          },
+          {
+            "id": "nbf",
+            "label": "nbf is present when required and not in the future beyond the clock skew",
+            "message": "The nbf claim is in the future beyond the allowed clock skew",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27",
+            "alt": {
+              "missing": {
+                "message": "Missing nbf claim; the Trusted Issuer requires a not-before time",
+                "messageSource": "measured"
+              }
+            }
+          },
+          {
+            "id": "aud",
+            "label": "At least one aud value is in Audiences (blank accepts any)",
+            "message": "None of the token's aud values match the Trusted Issuer's configured audiences",
+            "messageSource": "measured",
+            "evidence": "measured",
+            "source": "m-p1-2026-10-27"
+          }
+        ]
+      },
+      "refusals": [
+        {
+          "symptom": "The token issuer does not match any Trusted Issuer ...",
+          "cause": "The token's iss is not byte for byte the Issuer you entered (a trailing slash, a different case), or the issuer is not assigned to the calling application.",
+          "fix": "Copy iss from the token, not from memory. Then check the application's Trusted Issuers tab.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "symptom": "JWT signature verification failed",
+          "cause": "The key set does not hold the key that signed the token (a rotated key, a pasted JWKS that is out of date), or the token was changed.",
+          "fix": "Refresh the JWKS or switch to the JWKS URL so rotations follow.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "symptom": "Missing iat or nbf claim ...",
+          "cause": "A Require switch is on and the issuer does not issue that claim. Okta and Auth0 tokens have no nbf. PingFederate client-credentials tokens have no iat.",
+          "fix": "Turn the switch off, or pick a token type that carries the claim.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "symptom": "None of the token's aud values match ...",
+          "cause": "Audiences is set and the token's aud is not in it.",
+          "fix": "Add the audience the issuer really puts in the token, or clear Audiences to accept any.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "symptom": "Provided token type must be urn:ietf:params:oauth:token-type:jwt",
+          "cause": "The exchange named the third-party token as an access_token.",
+          "fix": "Set subject_token_type or actor_token_type to the jwt type.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "symptom": "clockSkew must be less than or equal to 60",
+          "cause": "The trusted issuer was saved with a clock skew above 60 seconds.",
+          "fix": "Use 60 or less.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        }
+      ],
+      "useWhen": [
+        "A person's or a workload's token from another system has to be traded for a PingOne token for one of your APIs.",
+        "You want PingOne to mint the downstream token, with its audience set to a custom resource and an act claim added.",
+        "The other issuer is PingFederate, another PingOne environment, PingAM or a third party, and you can give PingOne its key set.",
+        "The trust is for one call at a time: there is nothing to register per caller."
+      ],
+      "dontUseWhen": [
+        "You need to pin a subject or require certain claims. This surface has no setting for either; it only checks the issuer, the audiences and the time claims.",
+        "The token is encrypted or opaque. Only a signed JWT is accepted.",
+        "The caller is a worker application. Worker applications cannot be assigned an issuer.",
+        "You only want an API to check a token someone already holds. That is PingOne Authorize external OAuth servers (B), which checks and does not mint."
+      ],
+      "limits": [
+        {
+          "text": "Signed JWTs only. A signed-then-encrypted (nested) JWT is not supported as an input.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        },
+        {
+          "text": "For a token from a trusted issuer PingOne ignores the p1.userId claim, so subjectTokenUser and actorTokenUser are null. This holds even for a token from another PingOne environment.",
+          "evidence": "docs",
+          "source": "p1-ti-exchange"
+        },
+        {
+          "text": "Deleting a trusted issuer removes it from every assigned application and those applications stop accepting its tokens. The page describes no disable switch.",
+          "evidence": "docs",
+          "source": "p1-ti-manage"
+        },
+        {
+          "text": "Generally available in all regions from 10 Nov 2026, subject to licence entitlement.",
+          "evidence": "docs",
+          "source": "rn-2026-11-10"
+        },
+        {
+          "text": "Our messages and settings behaviour were measured on 2026-10-27, while the feature was behind a flag. They have not been re-run since general availability.",
+          "evidence": "measured",
+          "source": "m-p1-2026-10-27"
+        },
+        {
+          "text": "Whether trusted issuers can be assigned to AI agent applications is unconfirmed: the earlier guide said coming soon and the release note says only OIDC-based, non-worker applications.",
+          "evidence": "unverified",
+          "source": "unsourced"
+        }
+      ],
+      "mock": {
+        "assigned": true,
+        "trustedIssuer": {
+          "name": "Example issuer",
+          "audiences": [
+            "https://api.example/orders"
+          ],
+          "expRequired": true,
+          "iatRequired": true,
+          "nbfRequired": false,
+          "clockSkew": 30,
+          "maxFutureValidity": 3600
+        }
+      }
+    },
+    {
+      "id": "p1az-oauth",
+      "letter": "B",
+      "name": "PingOne Authorize: external OAuth servers",
+      "product": "PingOne Authorize",
+      "oneLine": "PingOne Authorize checks a signed access token from another authorization server before a request reaches your API, then hands the request to your policies.",
+      "whatTrustIsFor": "Protecting your own API with PingOne Authorize when callers hold tokens issued elsewhere.",
+      "whereConfigured": [
+        {
+          "step": "Add the server: Authorization > External OAuth Servers, then the plus icon.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "step": "Set the audience on the API service, not on the server: Authorization > API Services > your service > Audience.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "step": "Associate the server with the API service, and deploy the API service again every time the server's settings change.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        }
+      ],
+      "fields": [
+        {
+          "name": "Name",
+          "api": "name",
+          "meaning": "Unique within the environment, up to 256 characters.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "name": "Issuers",
+          "api": "issuers",
+          "meaning": "The token issuer identifier. Add more than one with + Add Issuer. The token's iss must match one exactly, and the match is case-sensitive.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "name": "JSON Web Key Set Method",
+          "api": "jwksUrl or jwks",
+          "meaning": "The issuer's JWKS URL, or the JWKS pasted in. The pasted string is limited to 16 KB.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "name": "Clock Skew Tolerance",
+          "api": "clockSkewTolerance",
+          "meaning": "Absorbs small clock differences when checking nbf and exp. Set too high it lets expired or not-yet-valid tokens through.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "name": "Audience (on the API service)",
+          "api": "audience",
+          "meaning": "The aud value the token must carry for this API. It is defined on the API service, not on the external OAuth server.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        }
+      ],
+      "checks": {
+        "orderEvidence": "unverified",
+        "orderNote": "The docs list the checks (issuer, audience, nbf, exp, signature) and do not say they run in that order. This lab runs the form and algorithm checks first, because a token has to be readable before anything else, then the listed ones in the listed order.",
+        "errorEnvelope": {
+          "http": 401,
+          "error": "WWW-Authenticate header with an error code and description",
+          "prefix": "",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        "items": [
+          {
+            "id": "form",
+            "label": "The token is a signed JWT (not unsigned, encrypted or opaque)",
+            "message": "The token is not a signed JWT",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          },
+          {
+            "id": "alg",
+            "label": "The algorithm is ES256, ES384, ES512, RS256, RS384 or RS512",
+            "message": "The signing algorithm is not supported",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          },
+          {
+            "id": "claims",
+            "label": "aud, exp, iat and iss are all present",
+            "message": "A mandatory claim is missing",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          },
+          {
+            "id": "issuer",
+            "label": "iss matches one of the Issuers, exactly and case-sensitively",
+            "message": "issuer mismatch",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          },
+          {
+            "id": "audience",
+            "label": "aud matches the API service's Audience",
+            "message": "invalid audience",
+            "messageSource": "docs",
+            "evidence": "docs",
+            "source": "p1az-eos-trouble"
+          },
+          {
+            "id": "nbf",
+            "label": "nbf, when present, is before the validation time (within the clock skew)",
+            "message": "token not yet active",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          },
+          {
+            "id": "exp",
+            "label": "exp is later than the validation time, iat and nbf",
+            "message": "token expired",
+            "messageSource": "docs",
+            "evidence": "docs",
+            "source": "p1az-eos-trouble"
+          },
+          {
+            "id": "signature",
+            "label": "The signature is valid and made with a key the issuer publishes",
+            "message": "invalid signature",
+            "messageSource": "lab wording",
+            "evidence": "docs",
+            "source": "p1az-eos"
+          }
+        ]
+      },
+      "refusals": [
+        {
+          "symptom": "401 with a WWW-Authenticate header; the audit event HTTP Request Policy Evaluated shows an issuer mismatch",
+          "cause": "The token's iss matches none of the Issuers (a typo, or a token from another source).",
+          "fix": "Make Issuers match iss exactly, case-sensitively. Save, then deploy the API service again.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "symptom": "401; evaluationResult says invalid audience",
+          "cause": "The token's aud is not the API service's Audience.",
+          "fix": "Make the API service's Audience match aud, case-sensitively. Save, then deploy again.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "symptom": "401; evaluationResult says token expired (or not yet active)",
+          "cause": "exp has passed or nbf is still in the future.",
+          "fix": "Check both clocks, adjust Clock Skew Tolerance, have clients fetch a new token before exp.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "symptom": "401; the audit log shows an invalid signature",
+          "cause": "The token was not signed with a key in the key set, or it was changed. A JWKS longer than 16 KB is also refused.",
+          "fix": "Check the JWKS URL or the pasted JWKS holds the current signing keys. Remove keys that do not sign access tokens.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        }
+      ],
+      "useWhen": [
+        "You protect your own API with PingOne Authorize and the callers hold access tokens from another authorization server.",
+        "You want policies on the token's claims. The external OAuth server only does basic access control: claims-based decisions need custom policies.",
+        "The issuer's JWKS is reachable on the public internet over HTTPS, or you can paste it."
+      ],
+      "dontUseWhen": [
+        "You need a new token minted. That is PingOne token exchange (A).",
+        "The token is opaque, encrypted or signed with a symmetric algorithm such as HS256.",
+        "The issuer's key set sits on a private network with a private certificate authority, and the pasted key set would be over 16 KB."
+      ],
+      "limits": [
+        {
+          "text": "Up to 25 external OAuth servers per PingOne environment.",
+          "evidence": "docs",
+          "source": "p1az-eos-add"
+        },
+        {
+          "text": "Signed JWT access tokens, broadly RFC 9068. Unsigned, encrypted and opaque or reference tokens are not supported.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "Mandatory claims: aud, exp, iat, iss. nbf is checked if present.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "Algorithms: ES256, ES384, ES512, RS256, RS384, RS512. Symmetric algorithms such as HS256 are not supported.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "The JWKS endpoint must be public HTTPS, answer GET, need no authentication and use no custom trust certificate.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "JWKS responses are cached per server for 60 minutes when there is no Cache-Control max-age. A token with a kid that is not in the cache triggers a fresh fetch.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "Claims with the p1 prefix are left out of decision requests when the token comes from an external source.",
+          "evidence": "docs",
+          "source": "p1az-eos"
+        },
+        {
+          "text": "The documented rejection is HTTP 401 with a WWW-Authenticate header holding an error code and description. The page does not list the codes.",
+          "evidence": "docs",
+          "source": "p1az-eos-trouble"
+        },
+        {
+          "text": "We have not exercised this surface ourselves, and no lab of ours configures an external OAuth server.",
+          "evidence": "unverified",
+          "source": "unsourced"
+        }
+      ],
+      "mock": {
+        "externalOAuthServer": {
+          "name": "Example external server",
+          "clockSkewTolerance": 30
+        },
+        "apiService": {
+          "audience": "https://api.example/orders"
+        }
+      }
+    },
+    {
+      "id": "privilege-fi",
+      "letter": "C",
+      "name": "PingOne Privilege: Federated Identity",
+      "product": "PingOne Privilege",
+      "oneLine": "The Privilege gateway trusts one issuer for one agent or service, so the caller holds no stored secret: its own platform's short-lived token is the credential.",
+      "whatTrustIsFor": "Letting an agent, a service or a sensor call the gateway with a token its own platform issues.",
+      "whereConfigured": [
+        {
+          "step": "The object is a Federated Identity in the console. Its API name has not changed: kind NonHumanIdentity at /api/{tenant}/v1/nonhumanidentities.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "step": "Ping's deck renames Non-Human Identity to Federated Identity as a display term (release 2026-11-02). Say Federated Identity to people and keep NonHumanIdentity in code.",
+          "evidence": "deck",
+          "source": "d-id4ai-h2-2026"
+        },
+        {
+          "step": "A Federated Identity authenticates nobody on its own: an agent key whose custodian is the identity has to sit behind it.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        }
+      ],
+      "fields": [
+        {
+          "name": "Issuer",
+          "api": "Federation.Issuer",
+          "meaning": "The expected iss, exact match.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "Audience",
+          "api": "Federation.Audience",
+          "meaning": "The required aud. Mandatory: a token with no audience binding could be replayed elsewhere.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "Subject / AllowAnySubject",
+          "api": "Federation.Subject, Federation.AllowAnySubject",
+          "meaning": "Pin one sub, or explicitly accept any. Avoid accepting any unless the issuer is already tightly scoped.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "JwksURI or JWKS",
+          "api": "Federation.JwksURI, Federation.JWKS",
+          "meaning": "The gateway fetches and refreshes keys from the URI (preferred), or you pin public keys.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "MaxTokenLifetimeSec",
+          "api": "Federation.MaxTokenLifetimeSec",
+          "meaning": "Refuse a token whose exp minus iat is longer. 0 means the gateway default of 3600. It is needed because a self-signing workload picks its own exp.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "RequiredClaims",
+          "api": "Federation.RequiredClaims",
+          "meaning": "Extra claims that must match exactly. Use it when sub is composite, as in GitHub Actions (repository, workflow, actor).",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "Platform",
+          "api": "Federation.Platform",
+          "meaning": "A UI hint only (kubernetes, docker, github_actions, spiffe, oidc). It is never used to verify a token.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "Enabled",
+          "api": "Enabled",
+          "meaning": "The only kill switch for the identity.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "name": "NotAfter",
+          "api": "NotAfter",
+          "meaning": "When the identity expires. Empty means it does not.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        }
+      ],
+      "checks": {
+        "orderEvidence": "unverified",
+        "orderNote": "The order and the wording of the gateway's refusals are our reading, taken from federated-identity-LAB's engine. We saw no accepted or rejected line in the gateway log for a workload token (see the open question below), so none of this is a measurement.",
+        "errorEnvelope": {
+          "http": 401,
+          "error": "gateway refusal; the wording is not known",
+          "prefix": "",
+          "evidence": "unverified",
+          "source": "unsourced"
+        },
+        "items": [
+          {
+            "id": "form",
+            "label": "The token is a JWT (not encrypted, opaque or malformed)",
+            "message": "workload token rejected: not a readable JWT",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "identity",
+            "label": "The Federated Identity exists, is enabled and has not passed NotAfter",
+            "message": "workload token rejected: identity disabled or expired",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "alg",
+            "label": "The algorithm is asymmetric: never none, never HS256",
+            "message": "workload token rejected: algorithm not allowed",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "issuer",
+            "label": "iss equals Federation.Issuer exactly",
+            "message": "workload token rejected: issuer mismatch",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "keyset",
+            "label": "The signing key's kid is in the key set (an unknown kid triggers one refresh)",
+            "message": "workload token rejected: no key for kid",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "signature",
+            "label": "The signature verifies",
+            "message": "workload token rejected: bad signature",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "expiry",
+            "label": "exp is present and has not passed",
+            "message": "workload token rejected: expired or no exp",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "notbefore",
+            "label": "nbf, when present, has been reached",
+            "message": "workload token rejected: not yet valid",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "issued",
+            "label": "iat is present and not in the future",
+            "message": "workload token rejected: no iat or iat in the future",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "lifetime",
+            "label": "exp minus iat is within MaxTokenLifetimeSec (0 means 3600)",
+            "message": "workload token rejected: lifetime too long",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "audience",
+            "label": "aud is present and equals Federation.Audience",
+            "message": "workload token rejected: audience mismatch",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "subject",
+            "label": "sub equals Federation.Subject, unless AllowAnySubject is on",
+            "message": "workload token rejected: subject mismatch",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          },
+          {
+            "id": "claims",
+            "label": "Every RequiredClaims entry matches exactly",
+            "message": "workload token rejected: required claim missing or different",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-federated-identity"
+          }
+        ]
+      },
+      "refusals": [
+        {
+          "symptom": "401 with no explanation on the MCP door; no accepted or rejected line in the gateway log",
+          "cause": "Unknown. With every claim matching, a PingFederate token was refused on the MCP door and the LLM route, and the check that should log the decision never appeared. We cannot tell whether the deployed gateway evaluates workload tokens on these routes.",
+          "fix": "Ask Ping. Do not promise a customer that a workload token works on a door until this is answered.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "symptom": "Gateway log: non-human identity <name> updated, rebuilding 0 key(s)",
+          "cause": "The identity has no agent key behind it, so nothing can authenticate as it.",
+          "fix": "Create an agent key whose CustodianRef is the identity.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "symptom": "Spec.WorkloadIdentity and a NonHumanIdentity Spec.CustodianRef are mutually exclusive",
+          "cause": "The key carries its own workload identity and also names an identity as its custodian.",
+          "fix": "Leave the key's own WorkloadIdentity empty; the identity supplies the federation.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "symptom": "Spec.CustodianRef and Spec.UserRef name different principals",
+          "cause": "A key cloned from one with a human custodian still has UserRef set.",
+          "fix": "Clear UserRef.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "symptom": "PingFederate: invalid_target ... did not match any access token manager",
+          "cause": "PingFederate accepts a resource value only if it is listed on a token manager, and our default manager issued opaque reference tokens, which can never satisfy an identity that needs a JWT, an audience and a lifetime cap.",
+          "fix": "Add a JWT token manager whose audience and resource URI are the door URL, with a short lifetime.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "symptom": "Docker sensor loops: open /etc/procyon/nodesensor-signing.pem: read-only file system; then Unauthenticated reports",
+          "cause": "The key directory was mounted read-only, then the key file was lost so the console still pinned the old key id.",
+          "fix": "Mount the directory writable on a named volume, then paste the new key set from -mint-jwks into the identity.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-01"
+        }
+      ],
+      "useWhen": [
+        "An agent, a service or a sensor must call the Privilege gateway with no stored secret.",
+        "The platform already mints short-lived JWTs: Kubernetes, GitHub Actions, GitLab CI, SPIFFE or PingFederate.",
+        "You want the caller tied to one issuer, one subject and one audience.",
+        "You need to take one workload out of service on its own: Enabled is the kill switch."
+      ],
+      "dontUseWhen": [
+        "You need PingOne to mint a token for a downstream API. That is token exchange (A).",
+        "You need an API behind PingOne Authorize to accept the token. That is external OAuth servers (B).",
+        "You must prove gateway acceptance on the MCP or LLM routes today. Our test did not."
+      ],
+      "limits": [
+        {
+          "text": "A key cannot carry its own WorkloadIdentity and also name an identity as its custodian, and cannot name a person as well.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "text": "Our live tenant had five such identities on 2026-10-21: a Kubernetes sensor, two EKS sensors, a Docker sensor and a PingFederate test identity.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        },
+        {
+          "text": "The deck says the token is accepted across the MCP and LLM gateways (slide 40). Our own test of the MCP path did not prove it.",
+          "evidence": "deck",
+          "source": "d-id4ai-h2-2026"
+        },
+        {
+          "text": "RequiredClaims is a native exact-match gate on a presented token. It is not Cedar.",
+          "evidence": "lab-reading",
+          "source": "s-priv-swagger"
+        },
+        {
+          "text": "Pass Agent Token forwards a presented workload assertion to a remote agent. A key caller carries no assertion to forward, so a remote agent set to Pass Agent Token refuses key callers.",
+          "evidence": "measured",
+          "source": "m-priv-2026-10-21"
+        }
+      ],
+      "mock": {
+        "Enabled": true,
+        "Federation": {
+          "AllowAnySubject": false,
+          "MaxTokenLifetimeSec": 3600
+        },
+        "Scopes": [
+          "mcp"
+        ]
+      }
+    },
+    {
+      "id": "pf-idjag",
+      "letter": "D",
+      "name": "PingFederate: ID-JAG trusted IdP",
+      "product": "PingFederate",
+      "oneLine": "A resource server's authorization server redeems an ID-JAG (an identity assertion) issued by another IdP, but only for an IdP it has been told to trust.",
+      "whatTrustIsFor": "Giving a signed-in person access to an app in another domain without a second sign-in (cross-app access).",
+      "whereConfigured": [
+        {
+          "step": "An IdP connection per trusted issuer, with the issuer as its entity id and its JWKS URL. Our script pingfederate/sync-id-jag-trusted-idps.js creates them from approved registry entries.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "step": "An OAuth client for the redeeming agent, with the EXTENSION grant type for the JWT bearer grant, and client authentication.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "step": "List the resource the agent sends as resource in an access token manager's selection settings.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        }
+      ],
+      "fields": [
+        {
+          "name": "IdP connection: entity id",
+          "api": "idpConnection.entityId",
+          "meaning": "The issuer, byte for byte.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "name": "IdP connection: JWKS URL",
+          "api": "idpConnection.jwksUrl",
+          "meaning": "Where the issuer's signing keys are. PingFederate caches them and does not refetch for an ID-JAG without a kid.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "name": "Client grant type",
+          "api": "client.grantType",
+          "meaning": "EXTENSION, for the JWT bearer grant, with client authentication.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "name": "Token manager resource URIs",
+          "api": "tokenManager.resourceUris",
+          "meaning": "The resources the manager issues for. A resource not listed gets invalid_target.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "name": "ID-JAG header typ",
+          "api": "header.typ",
+          "meaning": "Must be oauth-id-jag+jwt.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-resource-as"
+        },
+        {
+          "name": "ID-JAG aud",
+          "api": "aud",
+          "meaning": "The redeeming authorization server's issuer, as a single value.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-resource-as"
+        }
+      ],
+      "checks": {
+        "orderEvidence": "unverified",
+        "orderNote": "These are the checks our own resource authorization server runs, modelled on the ID-JAG draft. PingFederate's order and exact wording were not measured, apart from the three refusals in the interoperability run listed below.",
+        "errorEnvelope": {
+          "http": 400,
+          "error": "invalid_grant (invalid_target for a resource, invalid_scope for scope)",
+          "prefix": "",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-resource-as"
+        },
+        "items": [
+          {
+            "id": "form",
+            "label": "The assertion is a JWT (not encrypted, opaque or malformed)",
+            "message": "invalid_grant: the assertion is not a readable JWT",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "alg",
+            "label": "The algorithm is RS256 (never none, never HS256)",
+            "message": "invalid_grant: the signature algorithm is not RS256",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "typ",
+            "label": "The header typ is oauth-id-jag+jwt",
+            "message": "invalid_grant: the header typ is not oauth-id-jag+jwt",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "issuer",
+            "label": "iss names an IdP the server has been told to trust",
+            "message": "invalid_grant: ID-JAG issuer is not trusted",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "signature",
+            "label": "The signature verifies against that IdP's key set (a key found by kid or x5t)",
+            "message": "invalid_grant: the signature does not verify",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "claims",
+            "label": "iss, sub, aud, client_id, jti, exp and iat are all present",
+            "message": "invalid_grant: a required claim is missing",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "audience",
+            "label": "aud is this server's issuer, as a single value",
+            "message": "invalid_grant: the audience is not this server",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "exp",
+            "label": "exp has not passed (a few seconds of tolerance)",
+            "message": "invalid_grant: the assertion has expired",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          },
+          {
+            "id": "resource",
+            "label": "The resource is one the server issues for",
+            "message": "invalid_target",
+            "messageSource": "lab wording",
+            "evidence": "lab-reading",
+            "source": "l-id-jag-resource-as"
+          }
+        ]
+      },
+      "refusals": [
+        {
+          "symptom": "invalid_grant: The JWT header is missing the 'kid' property (from a third-party server)",
+          "cause": "PingFederate 13.1.3 signs an ID-JAG with a header that has typ, alg and x5t but no kid. A consumer that looks the key up by kid cannot verify it.",
+          "fix": "Needs a PingFederate change or a signing proxy. The server's own settings did not add a kid.",
+          "evidence": "measured",
+          "source": "m-pf-interop-2026-10-19"
+        },
+        {
+          "symptom": "invalid_grant: JWT signature is invalid (from a third-party server)",
+          "cause": "The issuer, audience, client and subject checks passed and the signature then failed.",
+          "fix": "Not solved in our run. Compare the key the third party fetched with the key PingFederate signed with.",
+          "evidence": "measured",
+          "source": "m-pf-interop-2026-10-19"
+        },
+        {
+          "symptom": "invalid_target",
+          "cause": "The resource the agent sent is not listed on an access token manager.",
+          "fix": "List the resource in the token manager's selection settings.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        }
+      ],
+      "useWhen": [
+        "A signed-in person must reach an app in another domain without signing in again.",
+        "You run PingFederate as the IdP that issues the ID-JAG or as the server that redeems it.",
+        "You can register each issuer once, with its key set, in the redeeming server."
+      ],
+      "dontUseWhen": [
+        "There is no person: a service with its own platform identity should use Federated Identity (C).",
+        "You need PingOne to mint the access token. That is token exchange (A).",
+        "The issuer's keys change often and you rely on PingFederate refetching them: PingFederate does not refetch for an ID-JAG without a kid."
+      ],
+      "limits": [
+        {
+          "text": "An IdP must not redeem its own ID-JAGs, so the issuer is always a different server.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "text": "PingFederate caches the issuer's JWKS and never refetches it for an ID-JAG without a kid. After the issuer changes keys, restart PingFederate.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "text": "The issuer's key set should hold a single key, for the x5t reason in our guide.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-setup"
+        },
+        {
+          "text": "Our interoperability run on PingFederate 13.1.3: Authplane accepted the ID-JAG, a public demo resource refused it (no kid) and Okta's sandbox refused it (signature).",
+          "evidence": "measured",
+          "source": "m-pf-interop-2026-10-19"
+        },
+        {
+          "text": "The checks in this lab are our own resource authorization server's, not PingFederate's. The jti single-use and client_id binding checks are not modelled here.",
+          "evidence": "lab-reading",
+          "source": "l-id-jag-resource-as"
+        }
+      ],
+      "mock": {
+        "idpConnection": {},
+        "tokenManager": {
+          "resourceUris": [
+            "https://mcp.example/orders"
+          ]
+        },
+        "redeemerIssuer": "https://pf-redeemer.example"
+      }
+    }
+  ]
+}

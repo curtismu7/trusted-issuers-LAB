@@ -1,0 +1,145 @@
+{
+  "mutations": [
+    { "id": "none", "label": "Nothing wrong", "what": "A well-formed token from the issuer, made for this surface.", "teaches": "The baseline: every check passes." },
+    { "id": "wrong-iss", "label": "Wrong issuer", "what": "iss names a different issuer that nobody configured.", "teaches": "Trust starts with the issuer string. An issuer you did not register is refused before anything else is looked at." },
+    { "id": "iss-trailing-slash", "label": "Trailing slash on the issuer", "what": "iss is the configured string with a slash added, or taken off if it had one.", "teaches": "Issuer matching is exact. Auth0 and Microsoft v1.0 end in a slash, so this is the commonest mistake." },
+    { "id": "iss-case", "label": "Different case in the issuer", "what": "The first letter of the host in iss is upper-case.", "teaches": "Host names are not case-sensitive on the network, but the issuer comparison is." },
+    { "id": "wrong-aud", "label": "Wrong audience", "what": "aud is a different API.", "teaches": "The audience binds a token to one recipient. Without it a token for one API works on another." },
+    { "id": "expired", "label": "Expired", "what": "exp was an hour ago.", "teaches": "Every surface checks exp. A little clock skew is tolerated, an hour is not." },
+    { "id": "not-yet-valid", "label": "Not yet valid", "what": "nbf is an hour in the future.", "teaches": "nbf is checked wherever it is present. Some issuers never set it." },
+    { "id": "long-lifetime", "label": "Lifetime too long", "what": "exp is 30 days after iat.", "teaches": "Only some surfaces cap how long a token may live, and they cap it in different ways." },
+    { "id": "missing-exp", "label": "No exp", "what": "The exp claim is left out.", "teaches": "A token with no expiry never stops being valid, so surfaces insist on one." },
+    { "id": "missing-iat", "label": "No iat", "what": "The iat claim is left out.", "teaches": "Some issuers do not issue iat. A surface that requires it will refuse them." },
+    { "id": "wrong-sub", "label": "Different subject", "what": "sub is another workload or user.", "teaches": "Only a surface that pins the subject notices. Elsewhere any subject from a trusted issuer gets in." },
+    { "id": "missing-required-claim", "label": "A pinned claim is missing", "what": "The one extra claim the surface is told to require is left out.", "teaches": "Requiring a claim is how you tell one workload or repository from another, and only some surfaces can do it." },
+    { "id": "tampered-signature", "label": "Tampered signature", "what": "One character of the signature is changed.", "teaches": "Any change to a signed token breaks the signature." },
+    { "id": "alg-none", "label": "No signature (alg none)", "what": "The header says alg none and the signature is empty.", "teaches": "An unsigned token proves nothing. Every surface refuses it." },
+    { "id": "hs256", "label": "HMAC instead of RSA (HS256)", "what": "The token is signed with HMAC, using the issuer's public key as the secret.", "teaches": "The classic key-confusion attack. A surface must pin the algorithm family, not trust the header." },
+    { "id": "nested-jwe", "label": "Encrypted (nested) token", "what": "The token has five parts, as an encrypted JWT does.", "teaches": "A surface cannot read the claims of an encrypted token, so none of them accepts one." },
+    { "id": "unknown-kid", "label": "Signed with a key nobody published", "what": "The signature is valid but the key id is not in the issuer's key set.", "teaches": "A rotated or rogue key is refused. After a rotation the key set must be refreshed." },
+    { "id": "wrong-token-type", "label": "Token type named as access_token", "what": "The exchange calls the third-party token an access_token.", "appliesTo": ["p1-exchange"], "teaches": "PingOne wants urn:ietf:params:oauth:token-type:jwt for a third-party token." },
+    { "id": "not-assigned", "label": "Issuer not assigned to the application", "what": "The issuer exists but the calling application was never given it.", "appliesTo": ["p1-exchange"], "teaches": "A trusted issuer does nothing until it is assigned to an application." },
+    { "id": "disabled-identity", "label": "Identity switched off", "what": "The Federated Identity has Enabled set to false.", "appliesTo": ["privilege-fi"], "teaches": "Enabled is the only kill switch. A valid token from a disabled identity is refused." },
+    { "id": "wrong-typ", "label": "Wrong header typ", "what": "The header typ is JWT, not oauth-id-jag+jwt.", "appliesTo": ["pf-idjag"], "teaches": "An ID-JAG is a specific kind of token. A plain JWT from a trusted IdP is not one." },
+    { "id": "wrong-resource", "label": "Resource not listed", "what": "The resource in the assertion is not on the token manager.", "appliesTo": ["pf-idjag"], "teaches": "PingFederate issues only for the resources a token manager lists. Anything else is invalid_target." }
+  ],
+  "expected": {
+    "none": {
+      "p1-exchange": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-engine" },
+      "p1az-oauth": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-engine" },
+      "privilege-fi": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-engine" },
+      "pf-idjag": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-engine" }
+    },
+    "wrong-iss": {
+      "p1-exchange": { "verdict": "refused", "stage": "issuer", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "issuer", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "iss-trailing-slash": {
+      "p1-exchange": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-inference" },
+      "p1az-oauth": { "verdict": "refused", "stage": "issuer", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "iss-case": {
+      "p1-exchange": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-inference" },
+      "p1az-oauth": { "verdict": "refused", "stage": "issuer", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "issuer", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "wrong-aud": {
+      "p1-exchange": { "verdict": "refused", "stage": "aud", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "audience", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "audience", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "audience", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "expired": {
+      "p1-exchange": { "verdict": "refused", "stage": "exp", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "exp", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "expiry", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "exp", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "not-yet-valid": {
+      "p1-exchange": { "verdict": "refused", "stage": "nbf", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "nbf", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "notbefore", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "The checks our resource server lists include exp and iat but no not-before check." }
+    },
+    "long-lifetime": {
+      "p1-exchange": { "verdict": "refused", "stage": "maxfuture", "evidence": "measured", "source": "m-p1-2026-10-27", "note": "Only because Max Future Validity is set. At 0 any future date is valid." },
+      "p1az-oauth": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-inference", "note": "The documented checks have no lifetime cap: exp only has to be in the future." },
+      "privilege-fi": { "verdict": "refused", "stage": "lifetime", "evidence": "lab-reading", "source": "s-priv-swagger" },
+      "pf-idjag": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "The checks our resource server lists have no lifetime cap." }
+    },
+    "missing-exp": {
+      "p1-exchange": { "verdict": "refused", "stage": "exp", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "claims", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "expiry", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "claims", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "missing-iat": {
+      "p1-exchange": { "verdict": "refused", "stage": "iat", "evidence": "measured", "source": "m-p1-2026-10-27", "note": "Only because Require Issued-at Claim is on." },
+      "p1az-oauth": { "verdict": "refused", "stage": "claims", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "issued", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "claims", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "wrong-sub": {
+      "p1-exchange": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-inference", "note": "The documented settings have nothing that pins a subject." },
+      "p1az-oauth": { "verdict": "accepted", "evidence": "docs", "source": "p1az-eos", "note": "The external OAuth server does basic access control only. Decisions on claims need custom policies." },
+      "privilege-fi": { "verdict": "refused", "stage": "subject", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "sub is the person. The redeemer does not pin it." }
+    },
+    "missing-required-claim": {
+      "p1-exchange": { "verdict": "accepted", "evidence": "lab-reading", "source": "l-inference", "note": "The documented settings have no required-claims list." },
+      "p1az-oauth": { "verdict": "accepted", "evidence": "docs", "source": "p1az-eos", "note": "Claims-based decisions need custom policies." },
+      "privilege-fi": { "verdict": "refused", "stage": "claims", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "claims", "evidence": "lab-reading", "source": "l-id-jag-resource-as", "note": "Here the missing claim is client_id, which the ID-JAG draft requires." }
+    },
+    "tampered-signature": {
+      "p1-exchange": { "verdict": "refused", "stage": "signature", "evidence": "measured", "source": "m-p1-2026-10-27" },
+      "p1az-oauth": { "verdict": "refused", "stage": "signature", "evidence": "docs", "source": "p1az-eos-trouble" },
+      "privilege-fi": { "verdict": "refused", "stage": "signature", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "signature", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "alg-none": {
+      "p1-exchange": { "verdict": "refused", "stage": "form", "evidence": "docs", "source": "p1-ti-exchange" },
+      "p1az-oauth": { "verdict": "refused", "stage": "form", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "alg", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "alg", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "hs256": {
+      "p1-exchange": { "verdict": "refused", "stage": "signature", "evidence": "lab-reading", "source": "l-inference", "note": "The key set holds RSA keys, which cannot verify an HMAC. PingOne's own text for this case was not measured." },
+      "p1az-oauth": { "verdict": "refused", "stage": "alg", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "alg", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "alg", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "nested-jwe": {
+      "p1-exchange": { "verdict": "refused", "stage": "form", "evidence": "docs", "source": "p1-ti-exchange" },
+      "p1az-oauth": { "verdict": "refused", "stage": "form", "evidence": "docs", "source": "p1az-eos" },
+      "privilege-fi": { "verdict": "refused", "stage": "form", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "form", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "unknown-kid": {
+      "p1-exchange": { "verdict": "refused", "stage": "signature", "evidence": "lab-reading", "source": "l-inference", "note": "PingOne's own text for an unknown key id was not measured." },
+      "p1az-oauth": { "verdict": "refused", "stage": "signature", "evidence": "docs", "source": "p1az-eos", "note": "An unknown kid triggers a fresh JWKS fetch; if the key is still not there the signature is invalid." },
+      "privilege-fi": { "verdict": "refused", "stage": "keyset", "evidence": "lab-reading", "source": "l-federated-identity" },
+      "pf-idjag": { "verdict": "refused", "stage": "signature", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "wrong-token-type": {
+      "p1-exchange": { "verdict": "refused", "stage": "type", "evidence": "measured", "source": "m-p1-2026-10-27" }
+    },
+    "not-assigned": {
+      "p1-exchange": { "verdict": "refused", "stage": "assigned", "evidence": "measured", "source": "m-p1-2026-10-27" }
+    },
+    "disabled-identity": {
+      "privilege-fi": { "verdict": "refused", "stage": "identity", "evidence": "lab-reading", "source": "s-priv-swagger" }
+    },
+    "wrong-typ": {
+      "pf-idjag": { "verdict": "refused", "stage": "typ", "evidence": "lab-reading", "source": "l-id-jag-resource-as" }
+    },
+    "wrong-resource": {
+      "pf-idjag": { "verdict": "refused", "stage": "resource", "evidence": "lab-reading", "source": "l-id-jag-setup" }
+    }
+  }
+}

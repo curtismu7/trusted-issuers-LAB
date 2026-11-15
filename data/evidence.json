@@ -1,0 +1,21 @@
+{
+  "tags": [
+    { "id": "docs", "label": "DOCS", "meaning": "Stated in a vendor's published documentation or release note. The source names the page and its revision date." },
+    { "id": "measured", "label": "MEASURED", "meaning": "Run or read by us on a real system on the date given. Our own note, not a vendor statement: a later release may differ." },
+    { "id": "deck", "label": "DECK", "meaning": "A claim in a Ping presentation. Not checked on our tenant." },
+    { "id": "lab-reading", "label": "LAB READING", "meaning": "Our reading of a schema, a sibling lab or a vendor sample. A reasonable inference, not a statement and not a measurement." },
+    { "id": "unverified", "label": "UNVERIFIED", "meaning": "No source found. Check before quoting." }
+  ],
+  "statuses": [
+    { "id": "supported", "meaning": "The docs state, or we measured, that a token from this kind of issuer is accepted. The note says exactly what was shown." },
+    { "id": "configurable", "meaning": "The product has a place to trust this kind of issuer. A real token from it has not been shown to be accepted." },
+    { "id": "not-proven", "meaning": "We tried and did not get a token accepted, and cannot say why." },
+    { "id": "na", "meaning": "Does not apply here. The note says why." },
+    { "id": "unknown", "meaning": "No source. Check before relying on it." }
+  ],
+  "messageSources": [
+    { "id": "docs", "meaning": "The wording is quoted from the vendor documentation." },
+    { "id": "measured", "meaning": "The wording is what the product returned when we ran the same case. Copied, not generated." },
+    { "id": "lab wording", "meaning": "The wording was written by this lab. The product's own text for this case is not known." }
+  ]
+}
