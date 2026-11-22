@@ -78,6 +78,15 @@ If the port is taken:
 | `POST /api/probe` | Real mode only: the issuer discovery probe (below). |
 | `POST /api/reset`, `GET /api/runs`, `GET /api/netguard` | Clear the run log, list it, show the outbound-call evidence. |
 
+## Postman collection
+
+`postman/trusted-issuers-lab.postman_collection.json` drives the matrix without the UI: the data sets and support matrix, a check run for a matrix cell (`p1-env` / `p1-exchange`), the bad-input negative, the run log and reset. It needs no environment — every token is minted and checked in-process and the lab has no live mode.
+
+```
+node ../../shared/postman/generator.mjs --spec postman/spec.json            # regenerate (never hand-edit the output)
+npx newman run postman/trusted-issuers-lab.postman_collection.json
+```
+
 Tokens are shown raw and labelled MOCK-ISSUED (this is education). Nothing in the app holds a credential.
 
 ## Mock and Real
