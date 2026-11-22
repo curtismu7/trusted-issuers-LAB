@@ -1,0 +1,40 @@
+{
+  "name": "Trusted Issuers LAB",
+  "slug": "trusted-issuers-lab",
+  "description": "API collection for Trusted Issuers LAB: the measured trusted-issuer support matrix (PingOne, PingFederate, Advanced Identity Cloud surfaces), the per-cell token checks with mutations, and the decision guide. Every token is minted and checked in-process; the lab is a labelled simulation and has no live mode.",
+  "baseUrl": "http://localhost:7818",
+  "env": {},
+  "folders": [
+    {
+      "name": "Sanity (simulated, labelled)",
+      "description": "Health, build info, and the evidence-backed data sets.",
+      "requests": [
+        { "name": "Health", "method": "GET", "path": "/api/health",
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().state).to.eql('ready');"] },
+        { "name": "Info (mode is simulated by design)", "method": "GET", "path": "/api/info",
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().simulated).to.eql(true);"] },
+        { "name": "Data sets", "method": "GET", "path": "/api/data",
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().sets).to.include('matrix');"] },
+        { "name": "Support matrix", "method": "GET", "path": "/api/data/matrix",
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().cells.length).to.be.above(0);"] }
+      ]
+    },
+    {
+      "name": "Checks",
+      "description": "Run a token check for one issuer/surface cell, with an optional mutation. Ids come from the matrix (e.g. issuer p1-env, surface p1-exchange).",
+      "requests": [
+        { "name": "Check without input (negative)", "method": "POST", "path": "/api/check",
+          "body": {},
+          "tests": ["pm.expect(pm.response.code).to.eql(400);"] },
+        { "name": "Check p1-env / p1-exchange", "method": "POST", "path": "/api/check",
+          "body": { "issuer": "p1-env", "surface": "p1-exchange" },
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().cell).to.have.property('status');"] },
+        { "name": "Run log", "method": "GET", "path": "/api/runs",
+          "tests": ["pm.response.to.have.status(200);", "pm.expect(pm.response.json().runs).to.be.an('array');"] },
+        { "name": "Reset", "method": "POST", "path": "/api/reset",
+          "body": {},
+          "tests": ["pm.response.to.have.status(200);"] }
+      ]
+    }
+  ]
+}
