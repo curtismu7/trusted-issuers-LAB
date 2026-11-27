@@ -40,14 +40,14 @@ A pairing is marked **supported** only with DOCS or MEASURED evidence. The PingO
 Docker (OrbStack):
 
 ```
-docker compose up --build        # http://127.0.0.1:7818
+docker compose up --build        # http://127.0.0.1:7815
 ```
 
 Without Docker (Node 26):
 
 ```
 npm ci
-npm start                        # http://127.0.0.1:7818
+npm start                        # http://127.0.0.1:7815
 npm test
 npm run doctor
 npm run reset
@@ -56,11 +56,11 @@ npm run reset
 ## Ports, and what to do if the port is taken
 
 ```
-Ports: trusted-issuers-LAB listens on 7818 (set with PORT, default 7818).
+Ports: the container listens on 7818 (set with PORT, default 7818); the host port is 7815 (7818 on the host belongs to pdf-to-md-LAB) and the lab-proxy path is /trusted-issuers.
 
 If the port is taken:
 1. Find what is using it:
-   lsof -iTCP:7818 -sTCP:LISTEN -n -P
+   lsof -iTCP:7815 -sTCP:LISTEN -n -P
 2. If it is an old copy of this app, stop it: kill <PID>.
 3. If it is something else, stop it, or start this app on another port in 7800-7999:
    PORT=7830 npm start
