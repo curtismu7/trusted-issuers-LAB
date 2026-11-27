@@ -1,6 +1,6 @@
 # trusted-issuers-LAB step 2: the web page
 
-**Status:** draft   **Owner:** the repo owner
+**Status:** built   **Owner:** the repo owner
 
 ## Goal
 Give the Trusted Issuers Tester its web page (README "step 2 of 3"): browse the
