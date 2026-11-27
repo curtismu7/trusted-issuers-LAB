@@ -3,7 +3,7 @@
 Tester-tier lab. Where a token from another issuer is trusted: PingOne token exchange (A), PingOne Authorize (B), Privilege Federated Identity (C), PingFederate ID-JAG (D), against 14 issuer types. Content is data in `data/*.json`; the engine in `server/src` mints tokens with its own RSA keys and runs each surface's checks with real RS256 verification.
 
 ## Run and test
-- `npm ci`, `npm start` (127.0.0.1:7818), `npm test` (`node --test test/*.test.js` in `server/`), `npm run doctor`, `npm run reset`.
+- `npm ci`, `npm start` (127.0.0.1:7815), `npm test` (`node --test test/*.test.js` in `server/`), `npm run doctor`, `npm run reset`.
 - Docker: `docker compose up --build` (OrbStack, never Docker Desktop). Published on 127.0.0.1 only.
 - Run tests on the Air (`air-test`) when this Mac is loaded; `git add` new files first.
 
