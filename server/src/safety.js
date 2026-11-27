@@ -23,6 +23,6 @@ export function portProblem(port) {
 
 export function allowedHosts(env = process.env) {
   const given = env.LAB_ALLOWED_HOSTS;
-  const list = given ? given.split(',') : ['localhost', '127.0.0.1', 'local.ping-devops.com', 'trusted-issuers', 'trusted-issuers.local.ping-devops.com'];
+  const list = given ? given.split(',') : ['localhost', '127.0.0.1', 'local.ping-devops.com', 'trusted-issuers', 'trusted-issuers.local.ping-devops.com', 'trusted-issuers-lab.local.ping-devops.com'];
   return list.map((h) => h.trim().split(':')[0]).filter(Boolean);
 }

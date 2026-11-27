@@ -22,7 +22,7 @@ const textFiles = () => files().filter((f) => !/package-lock\.json$|\.(png|jpe?g
 
 test('docker: published on 127.0.0.1 only, restarts, read-only, no privilege, no host network, no socket', () => {
   const c = read('docker-compose.yml');
-  assert.match(c, /"127\.0\.0\.1:7818:7818"/);
+  assert.match(c, /"127\.0\.0\.1:7815:7818"/);
   const portLines = c.split('\n').filter((l) => /^\s*-\s*"?\d/.test(l));
   assert.ok(portLines.length >= 1, 'a published port');
   for (const l of portLines) assert.match(l, /"127\.0\.0\.1:\d+:\d+"/, `every published port is loopback-only: ${l.trim()}`);
@@ -51,7 +51,7 @@ test('ci: Node 26, v5 actions, the forbidden-strings scan, gitleaks and the attr
 
 test('README declares the tier and the port; CLAUDE.md exists', () => {
   assert.match(read('README.md'), /^\*\*Tier: Tester\.\*\*/m);
-  assert.match(read('README.md'), /listens on 7818/);
+  assert.match(read('README.md'), /host port is 7815/);
   assert.ok(existsSync(path.join(root, 'CLAUDE.md')));
 });
 
@@ -63,7 +63,7 @@ test('tests run by glob, on Node 26 or newer', () => {
 
 test('the shelf entry is portable and honest', () => {
   const e = JSON.parse(read('docs/shelf-entry.json'));
-  assert.equal(e.id, 'trusted-issuers'); assert.equal(e.port, 7818); assert.equal(e.kind, 'Tester');
+  assert.equal(e.id, 'trusted-issuers'); assert.equal(e.port, 7815); assert.equal(e.kind, 'Tester');
   assert.equal(e.healthPath, '/api/health');
   assert.ok(!path.isAbsolute(e.composeFile) && !/^\/(Users|home)\//.test(e.composeFile));
   assert.ok(e.description.length <= 300, `${e.description.length} characters`);
