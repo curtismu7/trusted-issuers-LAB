@@ -12,6 +12,6 @@ services:
       - PORT=7818
       - HOST=0.0.0.0
       - TI_IN_DOCKER=1
-      - LAB_ALLOWED_HOSTS=localhost,127.0.0.1,local.ping-devops.com,trusted-issuers,trusted-issuers.local.ping-devops.com
+      - LAB_ALLOWED_HOSTS=localhost,127.0.0.1,local.ping-devops.com,trusted-issuers,trusted-issuers.local.ping-devops.com,trusted-issuers-lab.local.ping-devops.com
       # Real mode (owner only, off by default): a read-only issuer discovery probe. Set TI_REAL_PROBE=1 in the .env beside this file.
       - TI_REAL_PROBE=${TI_REAL_PROBE:-}
