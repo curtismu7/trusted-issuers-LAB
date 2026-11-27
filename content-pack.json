@@ -1,0 +1,149 @@
+{
+  "schema": "demo-content-pack/1",
+  "id": "trusted-issuers",
+  "title": "Trusted Issuers LAB",
+  "version": "0.1.0",
+  "demo": {
+    "id": "trusted-issuers",
+    "name": "Trusted Issuers LAB",
+    "catalog": "C1",
+    "baseUrl": "http://127.0.0.1:7815",
+    "doctor": "/api/health",
+    "tags": [
+      "federation",
+      "jwt",
+      "jwks",
+      "token-exchange",
+      "privilege",
+      "pingfederate",
+      "simulated",
+      "real"
+    ]
+  },
+  "glossary": [
+    {
+      "id": "trusted-issuer",
+      "term": "Trusted issuer",
+      "definition": "An external issuer whose signed JWTs a product accepts: the config names the issuer string, the key set (JWKS URL or pasted), the accepted audiences and which time claims are required.",
+      "aliases": [
+        "external issuer",
+        "third-party issuer"
+      ]
+    },
+    {
+      "id": "id-jag",
+      "term": "ID-JAG",
+      "definition": "Identity Assertion JWT Authorization Grant (RFC 7523 profile): a short-lived JWT an authorization server issues so an agent can get an access token from another authorization server without sharing a client secret.",
+      "aliases": [
+        "identity assertion authorization grant",
+        "enterprise-managed authorization grant"
+      ]
+    },
+    {
+      "id": "token-exchange",
+      "term": "Token exchange",
+      "definition": "RFC 8693: trading a subject token (and optionally an actor token) for a new token, with the trust decision on the incoming token made by the exchange endpoint.",
+      "aliases": [
+        "RFC 8693",
+        "subject_token"
+      ]
+    },
+    {
+      "id": "jwks",
+      "term": "JWKS",
+      "definition": "JSON Web Key Set: the public keys a product fetches (or is given) to verify a JWT's signature.",
+      "aliases": [
+        "key set"
+      ]
+    },
+    {
+      "id": "federated-identity",
+      "term": "Federated Identity (Privilege)",
+      "definition": "PingOne Privilege's workload-identity federation: a non-human identity authenticates with its own JWT signed by an issuer the tenant trusts, instead of a static key.",
+      "aliases": [
+        "workload identity",
+        "NHI"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "p1-ti-add",
+      "title": "PingOne: Adding a trusted issuer",
+      "url": "https://docs.pingidentity.com/pingone/integrations/p1_adding_trusted_issuers.html",
+      "kind": "docs",
+      "use": "Surface A's configuration fields",
+      "status": "verified",
+      "checked": "2026-11-10"
+    },
+    {
+      "id": "p1-ti-exchange",
+      "title": "PingOne: Trusted issuers in token exchange",
+      "url": "https://docs.pingidentity.com/pingone/integrations/p1_trusted_issuer_token_exchange.html",
+      "kind": "docs",
+      "use": "Surface A's limits and claim mapping",
+      "status": "verified",
+      "checked": "2026-11-10"
+    },
+    {
+      "id": "rfc8693",
+      "title": "RFC 8693: OAuth 2.0 Token Exchange",
+      "url": "https://www.rfc-editor.org/rfc/rfc8693",
+      "kind": "spec",
+      "use": "The exchange request shape",
+      "status": "read",
+      "checked": "2026-11-01"
+    },
+    {
+      "id": "rfc7523",
+      "title": "RFC 7523: JWT Bearer Authorization Grant",
+      "url": "https://www.rfc-editor.org/rfc/rfc7523",
+      "kind": "spec",
+      "use": "The ID-JAG grant shape",
+      "status": "read",
+      "checked": "2026-11-01"
+    }
+  ],
+  "cards": [
+    {
+      "id": "matrix",
+      "label": "Who trusts whom",
+      "description": "The 4 surfaces \u00d7 14 issuers matrix with evidence tags.",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    },
+    {
+      "id": "check",
+      "label": "Run a check",
+      "description": "Mint a token for a cell, break it any of 22 ways, read the refusal.",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    },
+    {
+      "id": "paste",
+      "label": "Bring your own token",
+      "description": "Paste a JWT and check it as it is.",
+      "group": "try-it",
+      "action": {
+        "type": "route",
+        "href": "/"
+      }
+    },
+    {
+      "id": "api",
+      "label": "The API",
+      "description": "Everything the page does is a documented API route; drive it from Postman.",
+      "group": "reference",
+      "action": {
+        "type": "external",
+        "href": "https://github.com/curtismu7/trusted-issuers-LAB#readme"
+      }
+    }
+  ]
+}
