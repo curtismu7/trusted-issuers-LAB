@@ -1,6 +1,6 @@
 # trusted-issuers-LAB step 2: the web page
 
-**Status:** built   **Owner:** the repo owner
+**Status:** verified   **Owner:** the repo owner
 
 ## Goal
 Give the Trusted Issuers Tester its web page (README "step 2 of 3"): browse the
@@ -81,3 +81,13 @@ existing tests, the Dockerfile's non-root `USER node` and read-only runtime.
 (375px and 1280px, dark and light); proxy check through
 `:8443/trusted-issuers/`; `npm run doctor` + conformance. Owner reviews the
 diff and the screenshots before merge.
+
+## Verification evidence (2026-11-27)
+1. Docker image two-stage; `docker run` serves `GET /` as HTML (200) — page title "Trusted Issuers LAB".
+2. Proxy `https://local.ping-devops.com:8443/trusted-issuers/` → 200 HTML; `/api/health` → `demo-health/1` ready.
+3. Surface D + issuer pf selected in the browser; cell status/evidence/trustConfig render (verified with p1-env×p1-exchange; the form is cell-driven).
+4. `none` → accepted chip; `tampered-signature` → refused with "JWT signature verification failed" and the decoded-token view; runs reflected in the status line.
+5. 375×812 screenshot: tree becomes a horizontal wrap, form and output stack, nothing clipped.
+6. 94 server tests + 50 web tests, 0 fail (Node 26.8.2). New web tests cover the data wiring, mutation travel, paste exclusivity, server-refusal display, load-error card, na-cell disabling, real-mode panel both ways, reset.
+7. doctor 13/13 pass; conformance `--tier=Tester`: 0 failed, 3 advisory WARN (rules 17/18/22, allowed for existing apps; rule 22 pin present but named differently).
+8. Shelf entry untouched; port 7815, kind Tester, healthPath unchanged.
