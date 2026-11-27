@@ -16,7 +16,7 @@ const readme = read('README.md');
 add('readme-tier', /^\*?\*?Tier:\s*Tester/im.test(readme), 'README declares "Tier: Tester"');
 add('claude-md', existsSync(new URL('CLAUDE.md', root)), 'CLAUDE.md present');
 const compose = read('docker-compose.yml');
-add('compose-loopback', /"127\.0\.0\.1:7818:7818"/.test(compose) && !/^\s*-\s*"?(0\.0\.0\.0:)?7818:7818/m.test(compose), 'docker-compose publishes 127.0.0.1:7818 only');
+add('compose-loopback', /"127\.0\.0\.1:7815:7818"/.test(compose) && !/^\s*-\s*"?(0\.0\.0\.0:)?7818:7818/m.test(compose), 'docker-compose publishes 127.0.0.1:7815 (to container 7818) only');
 add('compose-restart', /restart:\s*unless-stopped/.test(compose), 'restart: unless-stopped on the long-running service');
 const ci = read('.github/workflows/ci.yml');
 add('ci', /gitleaks/.test(ci) && /FORBIDDEN_STRINGS/.test(ci) && /check-no-ai-attribution/.test(ci), 'ci.yml runs gitleaks, the forbidden-strings scan and the attribution check');

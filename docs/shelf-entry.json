@@ -4,7 +4,7 @@
   "catalogId": null,
   "kind": "Tester",
   "description": "Who trusts whom: the four places a token from another issuer is trusted (PingOne token exchange, PingOne Authorize, Privilege Federated Identity, PingFederate ID-JAG) against 14 issuer types, with evidence tags, a when-to-use guide and break-it checks.",
-  "port": 7818,
+  "port": 7815,
   "healthPath": "/api/health",
   "composeFile": "trusted-issuers-LAB/docker-compose.yml",
   "composeOverlays": [],
