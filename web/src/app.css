@@ -1,0 +1,72 @@
+/* trusted-issuers LAB layout on top of the shared standalone-ui.css tokens. */
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.shell-sub { color: var(--muted); font-size: 0.85rem; }
+.shell-spacer { flex: 1; }
+
+.inspector { display: grid; grid-template-columns: 220px 1fr 1.2fr; gap: 0.75rem; padding: 0.75rem; flex: 1; align-items: start; }
+.panel { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 0.75rem; min-width: 0; }
+
+.tree__list, .tree__sub { list-style: none; margin: 0; padding: 0; }
+.tree__sub { margin-left: 1rem; border-left: 1px solid var(--border); }
+.tree__item { display: block; width: 100%; text-align: left; padding: 0.4rem 0.55rem; border-radius: 8px; border: 1px solid transparent; background: none; cursor: pointer; color: var(--text); font-size: 0.85rem; }
+.tree__item:hover { background: var(--surface-2); }
+.tree__item[aria-selected="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.tree__item--sub { font-size: 0.78rem; }
+.tree__letter { display: inline-block; font-weight: 700; margin-right: 0.3rem; }
+
+.form__title { font-size: 1.05rem; margin: 0 0 0.5rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.3rem 0; }
+.field { border: 1px solid var(--border); border-radius: 8px; margin: 0.7rem 0; padding: 0.5rem 0.7rem; }
+.field legend { font-weight: 700; font-size: 0.85rem; padding: 0 0.3rem; }
+.field__label { display: block; font-size: 0.78rem; margin-bottom: 0.3rem; color: var(--muted); }
+.select, .textarea { width: 100%; font: inherit; padding: 0.35rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); }
+.check { display: flex; gap: 0.4rem; align-items: baseline; font-size: 0.85rem; }
+.real { margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: 0.6rem; }
+.h2 { font-size: 0.95rem; margin: 0 0 0.3rem; }
+.evidence-note { margin: 0.5rem 0; font-size: 0.78rem; }
+.kv dt { font-weight: 700; }
+.kv dd { margin: 0 0 0.3rem; }
+
+.statusline { padding: 0.4rem 0.9rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; }
+
+/* Status chips per UI-PATTERNS §7: pill, semantic colour + a word, never a bare dot. */
+.tichip { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.05rem 0.55rem; border-radius: 999px; border: 1px solid currentColor; font-size: 0.75rem; font-weight: 700; }
+.tichip::before { content: ""; width: 0.45em; height: 0.45em; border-radius: 50%; background: currentColor; }
+.tichip--ok { color: var(--status-ok); }
+.tichip--warn { color: var(--status-warn); }
+.tichip--info { color: var(--status-info); }
+.tichip--danger { color: var(--danger-text, var(--accent-deep)); }
+
+.banner--error { border-color: var(--danger-text, var(--accent-deep)); }
+
+@media (max-width: 900px) {
+  .inspector { grid-template-columns: 1fr 1.2fr; }
+  .tree { grid-column: 1 / -1; }
+  .tree__list { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .tree__sub { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-left: 0; border-left: 0; padding-left: 0.8rem; }
+  .tree__item { width: auto; }
+}
+@media (max-width: 600px) {
+  .inspector { grid-template-columns: 1fr; }
+}
+
+/* Trust diagram (pattern from poppy-agent-tester's PatternDiagram, on the family tokens) */
+.tidia { margin: 0.75rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.tidia__bar { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+.tidia__caption { color: var(--muted); font-size: 0.78rem; flex: 1; min-width: 12rem; }
+.pat-canvas { height: 380px; border: 0; border-radius: 0; background: var(--surface); }
+.pat-node { padding: 14px 16px; min-width: 110px; max-width: 190px; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--text); background: var(--surface); border: 2px solid var(--border); border-radius: 10px; }
+.pat-node--on { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.pat-handle { opacity: 0; pointer-events: none; }
+.pat-edge path { stroke: var(--muted); stroke-width: 2; }
+.pat-edge--now path { stroke: var(--accent); stroke-width: 3.2; }
+.pat-edge--dim { opacity: 0.3; }
+/* React Flow ships light-only label and control colours; follow the theme tokens in dark mode too. */
+.pat-canvas .react-flow__controls { box-shadow: none; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pat-canvas .react-flow__controls-button { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); width: 26px; height: 26px; }
+.pat-canvas .react-flow__controls-button:hover { background: var(--surface-2); }
+.pat-canvas .react-flow__controls-button svg { fill: currentColor; max-width: 14px; max-height: 14px; }
+.pat-canvas .react-flow__controls-button:last-child { border-bottom: 0; }
+.pat-canvas .react-flow__background { background: var(--surface); }
+@media (max-width: 600px) { .pat-canvas { height: 320px; } }
