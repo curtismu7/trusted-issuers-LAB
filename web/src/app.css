@@ -51,14 +51,22 @@
   .inspector { grid-template-columns: 1fr; }
 }
 
-/* Trust diagram */
+/* Trust diagram (pattern from poppy-agent-tester's PatternDiagram, on the family tokens) */
 .tidia { margin: 0.75rem; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); overflow: hidden; }
 .tidia__bar { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
 .tidia__caption { color: var(--muted); font-size: 0.78rem; flex: 1; min-width: 12rem; }
-.tidia__canvas { height: 320px; }
-.tidia__canvas .react-flow { background: var(--surface); }
-.tibox { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 0.5rem 0.7rem; font-size: 0.8rem; max-width: 15rem; display: flex; flex-direction: column; gap: 0.2rem; }
-.tibox strong { font-size: 0.82rem; }
-.tibox span { color: var(--muted); }
-.tibox--on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-.tibox--dim { opacity: 0.45; }
+.pat-canvas { height: 380px; border: 0; border-radius: 0; background: var(--surface); }
+.pat-node { padding: 14px 16px; min-width: 110px; max-width: 190px; text-align: center; font-size: 0.85rem; font-weight: 600; color: var(--text); background: var(--surface); border: 2px solid var(--border); border-radius: 10px; }
+.pat-node--on { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.pat-handle { opacity: 0; pointer-events: none; }
+.pat-edge path { stroke: var(--muted); stroke-width: 2; }
+.pat-edge--now path { stroke: var(--accent); stroke-width: 3.2; }
+.pat-edge--dim { opacity: 0.3; }
+/* React Flow ships light-only label and control colours; follow the theme tokens in dark mode too. */
+.pat-canvas .react-flow__controls { box-shadow: none; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.pat-canvas .react-flow__controls-button { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--border); width: 26px; height: 26px; }
+.pat-canvas .react-flow__controls-button:hover { background: var(--surface-2); }
+.pat-canvas .react-flow__controls-button svg { fill: currentColor; max-width: 14px; max-height: 14px; }
+.pat-canvas .react-flow__controls-button:last-child { border-bottom: 0; }
+.pat-canvas .react-flow__background { background: var(--surface); }
+@media (max-width: 600px) { .pat-canvas { height: 320px; } }
